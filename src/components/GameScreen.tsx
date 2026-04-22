@@ -209,7 +209,6 @@ export default function GameScreen({
           {roundIndex + 1}
         </div>
 
-        {showInfo && <HowToPlayModal onClose={() => setShowInfo(false)} />}
       </div>
 
       <div style={{ flex: 1, maxHeight: 78 }} />
@@ -363,6 +362,9 @@ export default function GameScreen({
           />
         ))}
       </div>
+
+      {/* How to Play modal — sibling of all game content, positioned relative to this outer div */}
+      {showInfo && <HowToPlayModal onClose={() => setShowInfo(false)} />}
     </div>
   );
 }
