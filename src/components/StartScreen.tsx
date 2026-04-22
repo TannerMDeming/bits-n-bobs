@@ -15,7 +15,7 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
   const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   return (
-    <>
+    <div style={{ position: 'relative', height: '100%' }}>
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -97,6 +97,6 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
       </div>
 
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
-    </>
+    </div>
   );
 }
