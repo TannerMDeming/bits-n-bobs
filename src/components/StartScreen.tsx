@@ -22,7 +22,7 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
         alignItems: 'center',
         justifyContent: 'center',
         flex: 1,
-        padding: '0 50px 80px',
+        padding: '60px 50px 0',
         textAlign: 'center',
       }}>
         <img

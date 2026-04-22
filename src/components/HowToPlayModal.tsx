@@ -236,23 +236,9 @@ export default function HowToPlayModal({ onClose }: Props) {
               <TrayTile text="i"   bg={FULL_BLUE} />
               <TrayTile text="cal" bg={FULL_BLUE} />
             </>}
-            caption={<>Swap <strong>co</strong> for <strong>i</strong>, add <strong>cal</strong>, and you've solved the clue. All three go blue. Makes sense!</>}
+            caption={<>Swap <strong>co</strong> for <strong>i</strong>, add <strong>cal</strong>, and you've solved the clue.<br />All three go blue. Makes sense!</>}
           />
 
-          {/* Footer */}
-          <div style={{ borderTop: '1px solid #E8E6E3', paddingTop: 12 }}>
-            <p style={{
-              fontFamily: 'var(--font-game)',
-              fontSize: 13,
-              color: '#444',
-              lineHeight: 1.6,
-              textWrap: 'pretty',
-            } as React.CSSProperties}>
-              Clues range from the straightforward to the unhinged.
-              <br />
-              A new set of 12 tiles and 5 clues every morning.
-            </p>
-          </div>
         </div>
       </div>
     </div>
