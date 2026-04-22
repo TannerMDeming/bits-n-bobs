@@ -114,14 +114,14 @@ export default function GameScreen({
   const wasFullWrongRef = useRef(false);
 
   useEffect(() => {
-    const isFullWrong = trayFull && hasWrongTile && !isComplete;
+    const isFullWrong = trayFull && hasWrongTile && !isComplete && !snapReset;
     if (isFullWrong && !wasFullWrongRef.current) {
       wasFullWrongRef.current = true;
       setShaking(true);
-      setTimeout(() => setShaking(false), 500);
+      setTimeout(() => setShaking(false), 700);
     }
     if (!isFullWrong) wasFullWrongRef.current = false;
-  }, [trayFull, hasWrongTile, isComplete]);
+  }, [trayFull, hasWrongTile, isComplete, snapReset]);
 
   // ── Reveal animation ──
   const completedRef = useRef(false);
@@ -318,7 +318,7 @@ export default function GameScreen({
           transition: tilePulse
             ? 'transform 110ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'transform 90ms ease-in',
-          animation: shaking ? 'trayShake 500ms ease-in-out' : 'none',
+          animation: shaking ? 'trayShake 700ms ease-in-out' : 'none',
         }}>
           {tray.map((tile, i) => (
             <button
