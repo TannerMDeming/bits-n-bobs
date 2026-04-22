@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import HowToPlayModal from './HowToPlayModal';
 import type { Puzzle } from '../types';
 
 interface Props {
@@ -37,53 +38,6 @@ function InfoIcon() {
   );
 }
 
-function HowToPlay({ onClose }: { onClose: () => void }) {
-  return (
-    <>
-      {/* Backdrop */}
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 10 }} />
-
-      {/* Popover — drops from header right edge, matches Home Scryer scale */}
-      <div style={{
-        position: 'absolute',
-        top: 'calc(100% + 10px)',
-        right: 0,
-        width: 220,
-        zIndex: 11,
-        background: '#FFFFFF',
-        borderRadius: 14,
-        padding: '16px 18px 18px',
-        boxShadow: '0 14px 30px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)',
-        animation: 'popoverIn 180ms ease-out',
-        transformOrigin: 'top right',
-      }}>
-        <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15, color: '#111', margin: '0 0 4px' }}>
-          How to Play
-        </p>
-        <p style={{ fontFamily: 'var(--font-game)', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: '#111', margin: '0 0 10px' }}>
-          Use the bits and pieces of words to solve each clue.
-        </p>
-        <p style={{ fontFamily: 'var(--font-game)', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: '#111', margin: '0 0 10px' }}>
-          Tiles change color as correct ones are added.
-        </p>
-        <p style={{ fontFamily: 'var(--font-game)', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: '#111', margin: '0 0 14px' }}>
-          An incorrect tile turns the whole row gray. Remove it and try again.
-        </p>
-        <p style={{ fontFamily: 'var(--font-game)', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: '#111', margin: '0 0 14px' }}>
-          Clues range from the clear to cryptic, the straightforward to the unhinged.
-        </p>
-        <div style={{ borderTop: '1.5px solid #EBEBEB', paddingTop: 12 }}>
-          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 700, fontSize: 15, color: '#111', margin: '0 0 4px' }}>
-            New Games
-          </p>
-          <p style={{ fontFamily: 'var(--font-game)', fontWeight: 400, fontSize: 13, lineHeight: 1.4, color: '#111', margin: 0 }}>
-            A new set of 12 tiles and 5 clues, every morning.
-          </p>
-        </div>
-      </div>
-    </>
-  );
-}
 
 export default function GameScreen({
   puzzle,
@@ -125,7 +79,7 @@ export default function GameScreen({
     if (isFullWrong && !wasFullWrongRef.current) {
       wasFullWrongRef.current = true;
       setShaking(true);
-      setTimeout(() => setShaking(false), 420);
+      setTimeout(() => setShaking(false), 300);
     }
     if (!isFullWrong) wasFullWrongRef.current = false;
   }, [trayFull, hasWrongTile, isComplete, snapReset]);
@@ -255,8 +209,7 @@ export default function GameScreen({
           {roundIndex + 1}
         </div>
 
-        {/* Popover anchored to header right edge */}
-        {showInfo && <HowToPlay onClose={() => setShowInfo(false)} />}
+        {showInfo && <HowToPlayModal onClose={() => setShowInfo(false)} />}
       </div>
 
       <div style={{ flex: 1, maxHeight: 78 }} />
@@ -318,7 +271,7 @@ export default function GameScreen({
           transition: tilePulse
             ? 'transform 110ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'transform 90ms ease-in',
-          animation: shaking ? 'trayShake 420ms ease-in-out' : 'none',
+          animation: shaking ? 'trayShake 300ms ease-in-out' : 'none',
         }}>
           {tray.map((tile, i) => (
             <button
