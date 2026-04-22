@@ -22,7 +22,7 @@ html, body, #root {
 }
 
 body {
-  background: var(--bg);
+  background: #E8E6E3;
   color: var(--fg);
   font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
