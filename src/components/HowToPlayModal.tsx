@@ -220,7 +220,7 @@ export default function HowToPlayModal({ onClose }: Props) {
               <TrayTile text="co"  bg={GRAY} />
               <TrayTile empty />
             </>}
-            caption={<>The <strong>co</strong> tile doesn't belong there. All tiles go gray, even correct ones. Try something else.</>}
+            caption={<>The <strong>co</strong> tile doesn't belong there. All tiles go gray,<br />even correct ones. Try something else.</>}
           />
 
           {/* Example 3: solved */}
