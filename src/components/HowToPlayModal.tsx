@@ -6,8 +6,6 @@ interface Props {
 
 const TILE = 38;
 const GAP  = 5;
-// Pool is always 4 tiles — use its width as the shared alignment container
-const POOL_W = 4 * TILE + 3 * GAP; // 167px
 
 function PoolTile({ text, used }: { text: string; used?: boolean }) {
   return (
