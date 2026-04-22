@@ -108,6 +108,13 @@ export default function GameScreen({
   // ── Info modal ──
   const [showInfo, setShowInfo] = useState(false);
 
+  // ── Reveal animation ──
+  const completedRef = useRef(false);
+  const [barPhase, setBarPhase] = useState<BarPhase>('hidden');
+  const [tilePulse, setTilePulse] = useState(false);
+  // Suppress tray tile transitions right after a round resets (prevents color linger)
+  const [snapReset, setSnapReset] = useState(false);
+
   // ── Shake when tray is full but wrong ──
   const trayFull = tray.every(t => t !== null);
   const [shaking, setShaking] = useState(false);
@@ -118,17 +125,10 @@ export default function GameScreen({
     if (isFullWrong && !wasFullWrongRef.current) {
       wasFullWrongRef.current = true;
       setShaking(true);
-      setTimeout(() => setShaking(false), 700);
+      setTimeout(() => setShaking(false), 400);
     }
     if (!isFullWrong) wasFullWrongRef.current = false;
   }, [trayFull, hasWrongTile, isComplete, snapReset]);
-
-  // ── Reveal animation ──
-  const completedRef = useRef(false);
-  const [barPhase, setBarPhase] = useState<BarPhase>('hidden');
-  const [tilePulse, setTilePulse] = useState(false);
-  // Suppress tray tile transitions right after a round resets (prevents color linger)
-  const [snapReset, setSnapReset] = useState(false);
 
   const revealAnswerRef = useRef('');
   const revealColorRef = useRef('');
@@ -318,7 +318,7 @@ export default function GameScreen({
           transition: tilePulse
             ? 'transform 110ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'transform 90ms ease-in',
-          animation: shaking ? 'trayShake 700ms ease-in-out' : 'none',
+          animation: shaking ? 'trayShake 400ms ease-in-out' : 'none',
         }}>
           {tray.map((tile, i) => (
             <button

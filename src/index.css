@@ -58,8 +58,8 @@ body {
 
 @keyframes trayShake {
   0%, 100% { transform: translateX(0); }
-  30%      { transform: translateX(-5px); }
-  70%      { transform: translateX(5px); }
+  30%      { transform: translateX(-3px); }
+  70%      { transform: translateX(3px); }
 }
 
 /* Max width container — game is designed for mobile width */
