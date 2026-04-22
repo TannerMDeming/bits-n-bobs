@@ -61,7 +61,7 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, onResta
       const emoji = ['🟦', '🟧', '🟥', '🟪', '🟩'][i];
       return `${emoji} ${formatShort(roundTimes[i])}`;
     });
-    const text = `Bits & Bobs — ${formatShort(totalSecs)}\n${lines.join('\n')}`;
+    const text = `I found all the bits & bobs in ${formatShort(totalSecs)}\n\n${lines.join('\n')}\n\nbits-n-bobs.io`;
     if (navigator.share) navigator.share({ text }).catch(() => {});
     else navigator.clipboard.writeText(text);
   }
