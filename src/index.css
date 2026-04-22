@@ -65,4 +65,19 @@ body {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  background: var(--bg);
+}
+
+@media (min-width: 500px) {
+  #root {
+    align-items: center;
+    padding: 24px 0;
+  }
+
+  .app-shell {
+    height: calc(100% - 48px);
+    max-height: 860px;
+    border-radius: 44px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.07);
+  }
 }
