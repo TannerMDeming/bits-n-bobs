@@ -182,71 +182,62 @@ export default function HowToPlayModal({ onClose }: Props) {
             Examples
           </p>
 
-          {/* ── Step 1: One right tile → light blue ── */}
+          {/* ── Step 1: First right tile → light blue ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
-            {/* Pool */}
             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-              <PoolTile text="vis" used />
-              <PoolTile text="it" />
+              <PoolTile text="log" used />
+              <PoolTile text="i" />
+              <PoolTile text="cal" />
               <PoolTile text="co" />
               <PoolTile text="al" />
-              <PoolTile text="log" />
             </div>
-            {/* Tray */}
             <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
-              <TraySlot text="vis" bg={LIGHT_BLUE} />
+              <TraySlot text="log" bg={LIGHT_BLUE} />
+              <TraySlot empty />
               <TraySlot empty />
             </div>
-            {/* Clue */}
-            <ExampleClue text="Come through" />
-            {/* Caption */}
-            <Caption><Bold>vis</Bold> is in the right spot — the tray turns blue.</Caption>
+            <ExampleClue text="Makes sense" />
+            <Caption><Bold>log</Bold> is in the right spot — the tray turns blue.</Caption>
           </div>
 
           <Divider />
 
           {/* ── Step 2: Wrong tile → all gray ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, margin: '18px 0' }}>
-            {/* Pool */}
             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-              <PoolTile text="vis" used />
-              <PoolTile text="it" />
+              <PoolTile text="log" used />
+              <PoolTile text="i" />
+              <PoolTile text="cal" />
               <PoolTile text="co" used />
               <PoolTile text="al" />
-              <PoolTile text="log" />
             </div>
-            {/* Tray */}
             <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
-              <TraySlot text="vis" bg={GRAY} />
+              <TraySlot text="log" bg={GRAY} />
               <TraySlot text="co"  bg={GRAY} />
+              <TraySlot empty />
             </div>
-            {/* Clue */}
-            <ExampleClue text="Come through" />
-            {/* Caption */}
-            <Caption><Bold>co</Bold> is wrong — the row turns gray. Remove it and try again.</Caption>
+            <ExampleClue text="Makes sense" />
+            <Caption><Bold>co</Bold> is wrong — the whole row turns gray. Remove it and try again.</Caption>
           </div>
 
           <Divider />
 
-          {/* ── Step 3: Correct replacement → full blue ── */}
+          {/* ── Step 3: All correct → full blue ── */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, margin: '18px 0 22px' }}>
-            {/* Pool */}
             <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-              <PoolTile text="vis" used />
-              <PoolTile text="it"  used />
+              <PoolTile text="log" used />
+              <PoolTile text="i"   used />
+              <PoolTile text="cal" used />
               <PoolTile text="co" />
               <PoolTile text="al" />
-              <PoolTile text="log" />
             </div>
-            {/* Tray */}
             <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>
-              <TraySlot text="vis" bg={FULL_BLUE} />
-              <TraySlot text="it"  bg={FULL_BLUE} />
+              <TraySlot text="log" bg={FULL_BLUE} />
+              <TraySlot text="i"   bg={FULL_BLUE} />
+              <TraySlot text="cal" bg={FULL_BLUE} />
             </div>
-            {/* Clue */}
-            <ExampleClue text="Come through" />
-            {/* Caption */}
-            <Caption>Swap in <Bold>it</Bold> — both tiles go full blue. Round solved!</Caption>
+            <ExampleClue text="Makes sense" />
+            <Caption>Replace <Bold>co</Bold> with <Bold>i</Bold>, add <Bold>cal</Bold> — all blue. Round solved!</Caption>
           </div>
 
           <Divider />

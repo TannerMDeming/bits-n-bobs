@@ -15,13 +15,13 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
   const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   return (
-    <div style={{ position: 'relative', height: '100%' }}>
+    <>
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '100%',
+        flex: 1,
         padding: '0 50px 100px',
         textAlign: 'center',
       }}>
@@ -72,11 +72,11 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
             border: 'none',
             cursor: 'pointer',
             fontFamily: 'var(--font-ui)',
-            fontWeight: 600,
-            fontSize: 14,
-            color: '#8E8E8E',
+            fontWeight: 700,
+            fontSize: 16,
+            color: '#3D3D3D',
             textDecoration: 'underline',
-            textDecorationColor: '#C8C4BF',
+            textDecorationColor: '#888',
             textUnderlineOffset: 3,
             padding: '4px 8px',
             marginBottom: 20,
@@ -97,6 +97,6 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
       </div>
 
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
-    </div>
+    </>
   );
 }
