@@ -120,6 +120,7 @@ export default function App() {
           rounds={puzzle.rounds}
           roundTimes={roundTimes}
           roundColors={ROUND_COLOR_FINAL}
+          puzzleId={puzzle.id}
           onRestart={() => {
             setPhase('start');
             setRoundIndex(0);

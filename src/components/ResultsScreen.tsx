@@ -5,6 +5,7 @@ interface Props {
   rounds: Round[];
   roundTimes: number[];
   roundColors: string[];
+  puzzleId: number;
   onRestart: () => void;
 }
 
@@ -20,6 +21,14 @@ function formatShort(secs: number) {
   return formatTime(secs);
 }
 
+function getSpeedEmoji(secs: number): string {
+  if (secs <= 8)  return '⚡️';
+  if (secs <= 20) return '🏃‍♂️';
+  if (secs <= 45) return '🚣';
+  if (secs <= 90) return '🦥';
+  return '🪨';
+}
+
 function getStreak(): number {
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -33,7 +42,7 @@ function getStreak(): number {
   return streak;
 }
 
-export default function ResultsScreen({ rounds, roundTimes, roundColors, onRestart }: Props) {
+export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleId, onRestart }: Props) {
   const [visible, setVisible] = useState(false);
   const totalSecs = roundTimes.reduce((a, b) => a + b, 0);
   const streak = getStreak();
@@ -57,11 +66,13 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, onResta
   }, []);
 
   function handleShare() {
+    const colorEmojis = ['🟦', '🟧', '🟥', '🟪', '🟩'];
     const lines = rounds.map((_, i) => {
-      const emoji = ['🟦', '🟧', '🟥', '🟪', '🟩'][i];
-      return `${emoji} ${formatShort(roundTimes[i])}`;
+      const speed = getSpeedEmoji(roundTimes[i]);
+      return `${colorEmojis[i]}  ${speed}${speed}${speed}`;
     });
-    const text = `I got all the bits & bobs in ${formatShort(totalSecs)}\n\n${lines.join('\n')}\n\nbits-n-bobs.io`;
+    const id = String(puzzleId).padStart(3, '0');
+    const text = `Bits & Bobs - ${id}\nI found all the bits & bobs in ${formatShort(totalSecs)}\n\n${lines.join('\n')}\n\nbits-n-bobs.io`;
     if (navigator.share) navigator.share({ text }).catch(() => {});
     else navigator.clipboard.writeText(text);
   }
