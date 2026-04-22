@@ -125,7 +125,7 @@ export default function GameScreen({
     if (isFullWrong && !wasFullWrongRef.current) {
       wasFullWrongRef.current = true;
       setShaking(true);
-      setTimeout(() => setShaking(false), 600);
+      setTimeout(() => setShaking(false), 420);
     }
     if (!isFullWrong) wasFullWrongRef.current = false;
   }, [trayFull, hasWrongTile, isComplete, snapReset]);
@@ -318,7 +318,7 @@ export default function GameScreen({
           transition: tilePulse
             ? 'transform 110ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'transform 90ms ease-in',
-          animation: shaking ? 'trayShake 600ms ease-in-out' : 'none',
+          animation: shaking ? 'trayShake 420ms ease-in-out' : 'none',
         }}>
           {tray.map((tile, i) => (
             <button
