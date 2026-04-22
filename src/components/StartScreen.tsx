@@ -41,7 +41,7 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
           maxWidth: 235,
           marginBottom: 20,
         }}>
-          Clues that need solving and only pieces of words to see you through.
+          12 wordy bits and bobs. 5 clues to solve.
         </p>
 
         <button
