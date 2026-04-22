@@ -99,6 +99,7 @@ export default function GameScreen({
 }: Props) {
   const round = puzzle.rounds[roundIndex];
   const inTray = new Set(tray.filter(Boolean) as string[]);
+  const hasWrongTile = tray.some((t, i) => t !== null && t !== round.tiles[i]);
 
   const trayTileSize = Math.min(76, Math.floor((335 - (tray.length - 1) * 7) / tray.length));
   const TRAY_CONTAINER_HEIGHT = 61;
@@ -106,6 +107,21 @@ export default function GameScreen({
 
   // ── Info modal ──
   const [showInfo, setShowInfo] = useState(false);
+
+  // ── Shake when tray is full but wrong ──
+  const trayFull = tray.every(t => t !== null);
+  const [shaking, setShaking] = useState(false);
+  const wasFullWrongRef = useRef(false);
+
+  useEffect(() => {
+    const isFullWrong = trayFull && hasWrongTile && !isComplete;
+    if (isFullWrong && !wasFullWrongRef.current) {
+      wasFullWrongRef.current = true;
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
+    }
+    if (!isFullWrong) wasFullWrongRef.current = false;
+  }, [trayFull, hasWrongTile, isComplete]);
 
   // ── Reveal animation ──
   const completedRef = useRef(false);
@@ -302,6 +318,7 @@ export default function GameScreen({
           transition: tilePulse
             ? 'transform 110ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'transform 90ms ease-in',
+          animation: shaking ? 'trayShake 500ms ease-in-out' : 'none',
         }}>
           {tray.map((tile, i) => (
             <button
