@@ -55,8 +55,9 @@ export default function GameScreen({
   const inTray = new Set(tray.filter(Boolean) as string[]);
   const hasWrongTile = tray.some((t, i) => t !== null && t !== round.tiles[i]);
 
-  const trayTileSize = Math.min(76, Math.floor((335 - (tray.length - 1) * 7) / tray.length));
-  const TRAY_CONTAINER_HEIGHT = 61;
+  const gridTileSize = Math.floor((335 - 3 * 8) / 4); // matches the 4-col grid tile width
+  const trayTileSize = Math.min(gridTileSize, Math.floor((335 - (tray.length - 1) * 7) / tray.length));
+  const TRAY_CONTAINER_HEIGHT = trayTileSize + 4;
   const roundColor = roundColors[roundIndex];
 
   // ── Info modal ──
