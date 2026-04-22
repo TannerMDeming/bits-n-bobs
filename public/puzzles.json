@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "date": "2026-04-21",
+    "tileset": ["vis", "st", "log", "able", "co", "ness", "e", "sion", "i", "cal", "it", "al"],
+    "rounds": [
+      { "answer": "visit", "tiles": ["vis", "it"], "clue": "Come through" },
+      { "answer": "coal", "tiles": ["co", "al"], "clue": "Sinner's present" },
+      { "answer": "ecological", "tiles": ["e", "co", "log", "i", "cal"], "clue": "Deductive, environmentally" },
+      { "answer": "steal", "tiles": ["st", "e", "al"], "clue": "A criminal baseball move" },
+      { "answer": "stale", "tiles": ["st", "al", "e"], "clue": "A baker's crime?" }
+    ]
+  }
+]

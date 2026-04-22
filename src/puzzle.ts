@@ -1,9 +1,6 @@
 import type { Puzzle } from './types';
 
 // ─── COLOR SYSTEM ────────────────────────────────────────────────────────────
-// 5 rounds × 5 color steps (light → saturated)
-// Steps indexed 0 (lightest, 1 tile placed) → 4 (full color, all tiles placed)
-// Exact colors from Figma — 5 steps light→saturated per round
 export const ROUND_COLORS: string[][] = [
   ['#C3DAFF', '#9CC0FB', '#76A5F7', '#4E8CF3', '#2871EF'], // Blue
   ['#FFDDAA', '#FFD18C', '#FFC56E', '#FDB850', '#FEAC32'], // Yellow
@@ -12,49 +9,33 @@ export const ROUND_COLORS: string[][] = [
   ['#80CFAD', '#64C59B', '#4ABA89', '#2EB077', '#14A566'], // Green
 ];
 
-// Final saturated color per round (used for completed round bars, result tiles, etc.)
 export const ROUND_COLOR_FINAL = ROUND_COLORS.map(steps => steps[4]);
-
-// Gray used when a wrong tile is in the tray
 export const WRONG_COLOR = '#D1D5DB';
 
-// ─── HARDCODED TEST PUZZLE ───────────────────────────────────────────────────
-export const TEST_PUZZLE: Puzzle = {
-  id: 1,
-  date: '2026-04-21',
-  tileset: ['vis', 'st', 'log', 'able', 'co', 'ness', 'e', 'sion', 'i', 'cal', 'it', 'al'],
-  rounds: [
-    {
-      answer: 'visit',
-      tiles: ['vis', 'it'],
-      clue: 'Come through',
-    },
-    {
-      answer: 'coal',
-      tiles: ['co', 'al'],
-      clue: "Sinner's present",
-    },
-    {
-      answer: 'ecological',
-      tiles: ['e', 'co', 'log', 'i', 'cal'],
-      clue: 'Deductive, environmentally',
-    },
-    {
-      answer: 'steal',
-      tiles: ['st', 'e', 'al'],
-      clue: 'A criminal baseball move',
-    },
-    {
-      answer: 'stale',
-      tiles: ['st', 'al', 'e'],
-      clue: "A baker's crime?",
-    },
-  ],
-};
-
 // ─── PUZZLE LOADER ───────────────────────────────────────────────────────────
-// For now always returns the test puzzle.
-// Later: look up today's date against a puzzle bank.
-export function getTodaysPuzzle(): Puzzle {
-  return TEST_PUZZLE;
+export async function getTodaysPuzzle(): Promise<Puzzle> {
+  const res = await fetch('/puzzles.json');
+  const puzzles: Puzzle[] = await res.json();
+
+  // Preview mode: ?preview=002 loads that puzzle ID
+  const params = new URLSearchParams(window.location.search);
+  const previewId = params.get('preview');
+  if (previewId) {
+    const match = puzzles.find(p => String(p.id).padStart(3, '0') === previewId || String(p.id) === previewId);
+    if (match) return match;
+  }
+
+  // Load today's puzzle by date
+  const today = new Date().toISOString().slice(0, 10);
+  const todaysPuzzle = puzzles.find(p => p.date === today);
+  if (todaysPuzzle) return todaysPuzzle;
+
+  // Fallback: most recent puzzle
+  return puzzles[puzzles.length - 1];
+}
+
+export function formatPuzzleDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
