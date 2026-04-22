@@ -84,7 +84,7 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
       alignItems: 'center',
       height: '100%',
       padding: '16px 28px 24px',
-      background: '#FFFDFC',
+      background: 'var(--bg)',
       opacity: visible ? 1 : 0,
       transform: visible ? 'none' : 'translateY(10px)',
       transition: 'opacity 0.4s ease, transform 0.4s ease',

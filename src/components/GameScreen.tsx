@@ -185,7 +185,7 @@ export default function GameScreen({
       flexDirection: 'column',
       height: '100%',
       padding: '16px 20px 24px',
-      background: '#FFFDFC',
+      background: 'var(--bg)',
       position: 'relative',
     }}>
 
