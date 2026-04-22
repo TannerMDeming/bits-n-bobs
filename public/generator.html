@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bits & Bobs — Puzzle Generator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #5c5fcf;
+  min-height: 100vh;
+  padding: 32px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+h1 span { font-weight: 400; font-size: 16px; opacity: 0.8; margin-left: 8px; }
+
+.subtitle { color: rgba(255,255,255,0.65); font-size: 13px; margin-bottom: 28px; }
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+
+/* Seed input */
+.seed-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.seed-input {
+  flex: 1;
+  border: 2px solid #e5e5e5;
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.seed-input:focus { border-color: #1a1a1a; }
+.seed-feedback {
+  font-size: 12px;
+  color: #888;
+  min-height: 18px;
+  padding: 0 4px;
+  margin-bottom: 8px;
+}
+.seed-feedback.ok  { color: #10b981; }
+.seed-feedback.err { color: #f97316; }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.8; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  border: 2px solid #e5e5e5;
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #555;
+  transition: border-color 0.15s;
+}
+.btn-ghost:hover { border-color: #aaa; }
+
+.word-count {
+  margin-left: auto;
+  font-size: 22px;
+  font-weight: 900;
+  color: #1a1a1a;
+}
+.word-count span { font-size: 12px; font-weight: 500; color: #888; display: block; text-align: right; }
+
+/* Tile Grid */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tile-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.tile {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2.5px solid #1a1a1a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  background: white;
+  transition: transform 0.1s, background 0.15s;
+  user-select: none;
+  position: relative;
+}
+.tile:hover { transform: scale(1.04); background: #f5f5ff; }
+.tile.locked {
+  background: #e8e8f0;
+  border-color: #5c5fcf;
+}
+.tile.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-size: 8px;
+}
+
+.tile-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Category colors */
+.cat-vowels    .tile-dot { background: #f59e0b; }
+.cat-prefixes  .tile-dot { background: #3b82f6; }
+.cat-suffixes  .tile-dot { background: #10b981; }
+.cat-roots     .tile-dot { background: #8b5cf6; }
+.cat-onsets    .tile-dot { background: #f97316; }
+.cat-cv        .tile-dot { background: #ec4899; }
+.cat-bodies    .tile-dot { background: #06b6d4; }
+
+.cat-vowels    .tile { border-color: #f59e0b; }
+.cat-prefixes  .tile { border-color: #3b82f6; }
+.cat-suffixes  .tile { border-color: #10b981; }
+.cat-roots     .tile { border-color: #8b5cf6; }
+.cat-onsets    .tile { border-color: #f97316; }
+.cat-cv        .tile { border-color: #ec4899; }
+.cat-bodies    .tile { border-color: #06b6d4; }
+
+.cat-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #999;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+}
+.legend-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+
+/* Divider */
+.divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+
+/* Word panel */
+.word-panel-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-left: auto;
+}
+.filter-btn {
+  background: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #888;
+  border-right: 1px solid #e5e5e5;
+}
+.filter-btn:last-child { border-right: none; }
+.filter-btn.active { background: #5c5fcf; color: white; }
+
+.word-list {
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+}
+.word-list.visible { display: block; }
+
+.word-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+.word-item:hover { background: #fafafa; }
+.word-item.starred { background: #fef9ec; }
+
+.word-text {
+  font-weight: 700;
+  font-size: 15px;
+  flex: 1;
+}
+.word-len {
+  font-size: 11px;
+  color: #bbb;
+  font-weight: 500;
+  min-width: 20px;
+}
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: #ddd;
+  transition: color 0.15s;
+}
+.star-btn.active { color: #f59e0b; }
+
+.empty-state {
+  text-align: center;
+  color: #bbb;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* Puzzle Plan */
+.plan-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.plan-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.plan-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: #bbb;
+  min-width: 16px;
+}
+.plan-word {
+  font-size: 14px;
+  font-weight: 800;
+  min-width: 120px;
+  color: #1a1a1a;
+}
+.plan-clue {
+  flex: 1;
+  border: 1.5px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.plan-clue:focus { border-color: #5c5fcf; }
+.plan-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  font-size: 16px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.plan-remove:hover { color: #ff4444; }
+
+.plan-empty {
+  color: #ccc;
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* Spinner */
+.generating {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 13px;
+}
+.generating.visible { display: flex; }
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid #ddd;
+  border-top-color: #5c5fcf;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1a1a1a;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* Tips */
+.tip {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 8px;
+}
+
+.word-decomp {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 500;
+  margin-top: 1px;
+}
+.word-decomp span {
+  background: #f0f0f0;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-right: 2px;
+  font-family: monospace;
+}
+.word-item .word-info { flex: 1; }
+.tile-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #ede9fe;
+  color: #7c3aed;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.tile-badge.long { background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+
+<h1>Bits & Bobs <span>Generator</span></h1>
+<p class="subtitle">Click a tile to swap it · Right-click to lock · Star words for your puzzle plan</p>
+
+<!-- Main card -->
+<div class="card">
+  <div class="seed-row">
+    <input class="seed-input" id="seedInput" type="text" placeholder="Seed word (optional) — e.g. ecological" autocomplete="off" spellcheck="false" />
+    <button class="btn-ghost" id="clearSeedBtn" style="display:none">Clear</button>
+  </div>
+  <div class="seed-feedback" id="seedFeedback"></div>
+
+  <div class="controls">
+    <button class="btn-primary" id="generateBtn">Generate Set</button>
+    <button class="btn-ghost" id="copySetBtn">Copy Tiles</button>
+    <div class="word-count" id="wordCount">
+      —
+      <span>words found</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Vowel</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Prefix</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Suffix</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div>Root</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>Onset</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ec4899"></div>CV</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div>Body</div>
+  </div>
+
+  <div class="tile-grid" id="tileGrid">
+    <div class="empty-state" style="grid-column:1/-1;padding:40px 0">Hit Generate to get your first tile set</div>
+  </div>
+
+  <div class="generating" id="generating">
+    <div class="spinner"></div>
+    Searching for a good set…
+  </div>
+
+  <p class="tip" id="tipText"></p>
+</div>
+
+<!-- Words card -->
+<div class="card">
+  <div class="word-panel-controls">
+    <div class="section-header" style="flex:1">
+      <span class="section-title" id="wordListTitle">Words</span>
+    </div>
+    <button class="btn-ghost" id="toggleWordsBtn" style="font-size:12px;padding:6px 14px">Show words</button>
+    <div class="filter-group">
+      <button class="filter-btn active" data-min="0">All</button>
+      <button class="filter-btn" data-min="5">5+</button>
+      <button class="filter-btn" data-min="6">6+</button>
+      <button class="filter-btn" data-min="8">8+</button>
+    </div>
+  </div>
+  <div class="word-list" id="wordList">
+    <div class="empty-state">No set generated yet</div>
+  </div>
+</div>
+
+<!-- Puzzle Plan card -->
+<div class="card">
+  <div class="section-header">
+    <span class="section-title">Puzzle Plan</span>
+    <button class="btn-ghost" id="clearPlanBtn" style="font-size:12px;padding:5px 12px">Clear</button>
+  </div>
+  <p class="tip" style="margin-bottom:12px">Star words above to add them here. Add clues as you go.</p>
+  <div id="puzzlePlan">
+    <div class="plan-empty">No words starred yet</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── VOCABULARY ─────────────────────────────────────────────────────────────
+const VOCAB = {
+  vowels:   ['a','e','i','o','u','y'],
+  prefixes: ['re','un','in','bi','co','de','ex','mis','pre','pro','out','be','en','con','com','per','uni','dis','im','over','ab','ob','ad','il','ir','em','sur'],
+  suffixes: ['er','or','al','ly','ic','ed','en','ful','less','ness','ment','tion','sion','able','ive','ous','ary','ify','ize','ish','ant','ing','ion','ate','ance','ence','ent','it','ce'],
+  roots:    ['log','bio','geo','eco','tech','phon','form','port','vis','cap','fin','gen','dict','cal','sol','nov','man','mot','loc','lor','ver','act','ject','mit','vent','viv','just','fa','id'],
+  onsets:   ['bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','sc','sk','sp','st','sw','tr','ch','sh','th'],
+  cv:       ['po','no','mo','lo','fo','ro','so','do'],
+  bodies:   ['app','ack','ail','all','ark','arm','ast','ell','end','est','ick','ill','ock','old','ong','ool','ork','orn','ust','ump','ain','ight','ound','ake']
+};
+
+const CAT_LABELS = {
+  vowels:'Vowel', prefixes:'Prefix', suffixes:'Suffix',
+  roots:'Root', onsets:'Onset', cv:'CV', bodies:'Body'
+};
+
+const ALL_TILES = [];
+for (const [cat, tiles] of Object.entries(VOCAB)) {
+  for (const tile of tiles) ALL_TILES.push({ tile, cat });
+}
+
+// ─── WORD LIST ───────────────────────────────────────────────────────────────
+const WORDS = `able acid acre arch back ball band bank bare barn base bath bell belt bird bite blue blur body bold bolt bond bone book boom bore born bowl bull bump burn calm call card care cart cave cell cent chip clay clip coal coat code coil coin cold come cook cool cord core corn cost cove crew crop cult curb cure curl dark dash data dawn deal deck deed dent desk dial disk dock dome done door dose down drag draw drum dusk dust earn east edge emit even evil face fade fail fair fall fame farm fast fate feed feel fell felt fern file fill find firm fish fist flag flat flaw foam fold folk fond font food fool ford fork form fort foul four free full fund gain gale game gang gate gear germ gift give glad glee glow gown grab gram grim grin grip grit grow gulf gust hack hall halt hand hang harm hash hawk heap heat helm help herd hike hill hilt hire hold hole home hook hope horn hour hull hunt hurl idle inch iris iron isle item jest join jolt keen keep kill kind king know lace lack laid lamb lamp land lark lash last lead leaf lean leap lend lens lick life lift like limb lime link lion list live load lock loft lone long look loom loop lord lore lose loss loud love luck lull lung lurk made mail main make mall malt mark mash mask mass mast math maze melt memo mend mesh mild mill mine mint miss mist mode mole molt monk moon more moss move much mull must nail name need nest news next nice nine node none noon norm note noun null oath odds omen once only open oral over oven pace pack page paid palm park part past path peak peel peer pelt perk pest pick pile pine pink pipe plan play plea plot plus poem pole poll pool pore pose post pour prey prod prop pull pump pure push race rack rage raid rail rain rake ramp rank rare rate read real reed reel rent rest ride rift ring rise road roam roar role root rose rove ruin rule rush rust safe sail salt sand sane save scan scar seal seam seed seem seep self sell send shed ship shop shot shut sign silk sill sing sink site size skip slab slam slap slim slip slot slow slug snag snap snow soak soil sole some song soot sort soul span spar spot stem step stir stop tall tank tape task team tell tend term test text thin tide tile time tint toll tomb tone tool town trap tree trim trip true tune turn tusk type veil verb vest view vine void volt vote wade wake walk wall wand ward warp wash wave weak weld well west whip wide wild will wilt wind wine wing wire wish wisp woke wore work worm worn yard yarn yell yoke zone about above acted actor adapt admit adopt adult after again agile agree alarm album alert alive alley allow alone aloud altar alter angle angry ankle annex anvil apart apple apply arena argue arise asset attic audio audit avoid awake award aware awful basic beach began begin being below bench berry blade blame blank blast blaze blend bless blind block bloom blown board boast boost booth brace brain brand brave bread break breed brim bring broke brook broom brown build bulge buyer cable candy cargo carry catch cause chain chalk chaos charm chart chase check cheer chest civil claim class clean clear clerk climb cling clock close cloth cloud coast craft crane crash creak creek crest cross crush crust curve cycle daily dance decay delay delta dense depth diary digit ditch dizzy dodge doing drain drama drawn dream dress dried drift drink drive drone drown dying early earth eight elect elite embed empty ended enemy enjoy enter entry equal essay event every exact extra faint faith fancy fatal fault feast fence field fiery fight final first fixed flake flame flare flash fleet flesh float flock flood floor force frank fresh front frost fruit fully gauge giant given glare gloom glory glove going grace grade grand grant grass grasp greet grief groan group grove grown guard guide guild guise habit happy harsh haunt haven heart heavy hedge herbs honor horse hotel house human image impact imply index infer inner input irony issue joint judge juice jumbo lance large laser later laugh layer learn legal level light limit logic lower loyal lucky lunar magic major maker manor march match media mercy merit metal minor mixed model money moral month motor motto mount mouth movie music naive nerve night noble noise noted novel nudge nurse offer often olive omega onset orbit order organ other outer oxide ozone panic paper party pause peace peach pearl pedal penny phase phone photo pilot pitch pixel place plain plane plant plate plaza plead pluck plumb plume point pound power press price pride prime print prior prize probe prone proof prose proud prove queen quest quiet quota quote radar radio raise rally ranch rapid ratio reach rebut relax repay repel reply rider ridge right risky rival river rocky round route rowdy royal ruler rural sadly saint scale scene scope score scout sense serve seven shade shaft shake shall shame shape share shark sharp sheen sheep shelf shell shift shock shore short shout shove shrub siege sight since sixth sized skill skull slate sleep slice slide slope smart smell smile smoke solid solve sound south space spare spark speak spear speed spell spend spice spill spine spoke spore sport spray squad stain stale stall stamp stand stare stark start state steal steam steel steep steer stick stiff still stone store storm story strap straw strip stuck study stump style sugar suite sunny surge swamp swear sweep swell swept swift sword syrup table taken taste terse these thick third three throw tired title today token topic total touch tough tower trace track trail train trait trend trial tribe trick tried troll truck trump trunk trust truth twice twine twist ultra under union until upper usage usual utter valid value valve vapor vault vigor viral virus visit vital vivid vocal voice voter waste watch water weave weird white whole whose wider witch woman women world worry worse worst worth would wound wrath write wrong wrote yield young youth zebra absorb accent access accord action active actual admire affect afford agenda agree allied allows almost alpine always animal annual anthem appeal appear arctic armory around ascend aspect assent assist attain attempt attend beacon beauty beckon belief belong beside bestow beyond blight boldly bother bounty branch bright broken bundle burden calmly candid carbon career castle casual credit crisis custom decade decent decide defend define defeat demand depend depict design desire detail devote direct divide domain earned effect effort either embark employ enable ending endure engage ensure entire escape except excite expand expect expert extend fabled factor falcon famine fasten fathom filter finite flavor follow forest formal foster freely frozen fulfill future gallop garden gather gentle giving global golden govern gravel greedy ground grudge growth harbor humble inform insist intent invoke joyful jungle keeper knight lavish leader letter liquid lonely matter mental middle mighty mirror misuse motive mutual narrow nation nearby neglect neutral object obtain offset oppose option orange origin orphan outfit outlaw palace parent permit phrase planet plenty pocket poison police polite portion poster potent prefer proper pursue puzzle ranger reason recall reform refuse relate relief remain remove repeal resent resist result return reveal revive rotate safety scream secret select settle severe simply single sleepy slowly sneaky softly soothe sorrow spoken spring stable statue stride strong struck suffer summer survey system talent tangle target temple tender thread threat thrive timber ticket toggle torment toward travel treaty triple trophy trying uneasy united unlock useful vacant valiant vanish varied vastly verbal victim vision volume wander warmth weapon weekly wisdom wonder worthy absolute abstract academy achieve activate adequate adoption advocacy affected alliance ambition announce approach approval argument arrested assemble assigned attitude audience balanced backward becoming benefits bordered bravery breakdown calculate campaign capacity carefully category champion coherent commence conceive consider contrast convince critical curiosity darkness deadline decisive decrease describe destined discover disorder distinct dominant dramatic drawback duration educated effective elegance emerging emphasis enormous entirely equipped evaluate everyone evidence exchange exercise exhausted expected expertly extended faithful familiar feasible featured feminine festival flexible flourish focusing followed forecast fortunate frequent function generate generous gracious grateful guidance handsome harmless humanity identity ignorant immense implicit inactive included increase indicate infamous infinite influence informed initial innocent inspired interest internal intimate involved isolated joyfully judgment kindness knowledge landmark language launched learning likewise majority manifest marvelous maximize measured moderate momentum motivate movement multiple national negative numerous obstacle organize oriented original overcome positive powerful practice precious prepared preserve previous principle progress profound promote proposal provided quantity realized recovery redirect referred relevant reliable remember removed required research resource response restore revealed romantic separate singular solution specific standard strength struggle studying suitable superior supposed surprise sustained tendency thorough together tolerate training transfer treasure ultimate universal unlikely upcoming validate valuable variable vocalize watchful willpower withdraw wondrous biological ecological geological theological technical logical illogical topological sociological methodological philosophical formation information reformation transformation confirmation informative decorative alternative indicative comparative productive destructive constructive instructive educative supportive administrative collaborative comfortable remarkable considerable favorable recoverable irreversible responsible comprehensible convertible invisible divisible permissible accessible impossible inflexible productivity creativity sensitivity capability visibility flexibility responsibility reliability availability possibility opportunity compatibility accessibility vulnerability accountability formation normalization organization capitalization specification simplification clarification modification notification verification amplification qualification environmental governmental fundamental experimental instrumental developmental supplemental temperamental sentimental incremental monumental continental unconditional reformational generational educational dictatorial locational emotional promotional recreational actionable portable capable formal visible dictionary incredible insoluble dissolve resolve absolute console isolate solution invincible provincial capital captive capture captivate formulate portable formative reformer informer performance perform conform inform reform porter transport import export report support portly formal formula formally informal formally inversion diversion conversion reversion universal reversible vocal vocals vocalist vocalize advocate invoke provoke revoke evoke dictate predict indicate educate verdict contradict generate general generous generosity generation genetically captive capable incapable capital captivate inject reject eject project object subject objection rejection projection admitted admitted commit permit submit transmit admit omit invent prevent event advent convention adventure invention prevention survive vivid revive revival survivor adjust justice justify unjust injustice adjustment surface surround survive survey surplus discover displace dismiss disorder display dispose disrupt distance improve impose import impulse impossible illegal illogical illuminate illusion irregular irrational embrace employ empower emerge emotion empathy location relocate locomotive local locate allocate notable notice novice novelist innovate innovation renovate renovation solvent resolve dissolved formless reforms performed informed conformed portable report exporter transport supportive
+identical technology logically contradict contraction reactionary deportation importation exportation conformation conventional resolution absolution dissolution capitalize decapitate uniformity generally generalize degenerate regenerate generously informally provisional promotional emotional injustice proactively relocation allocation generation renovation reformation information manually visually biologically ecologically geological biological ecological illogical
+emotionally generational informational reformational biologically ecologically logically
+capitation capitalize universally formidable creditable injectable rejectable projectable
+reconform reformat reformist deformation malformation preformation
+solidify solidified solidifying localize localized localizing novelize novelized
+formally informally uniformly conformally performatively reformatively
+dislocate dislocation relocated allocating allocated allocation reallocate
+resolution dissolution absolution convolution involution revolution evolution
+conventional unconventional conventionally
+provisional provisionally provisionality
+promotional promotionally
+emotional emotionally unemotional
+generational intergenerational
+visionary provisional provisional
+capitalized capitalizing recapitalize decapitalized
+regenerated regenerating regeneration degenerated degenerating degeneration
+generally generality generalize generalized generalizing
+informally informality formality informational
+manually manuality
+visually visibility visually visual
+proactively proactive proactively
+contraction contracting contracted contradict contradicting
+deportation deporting deportable
+importation importing importable importation
+exportation exporting exportable
+injustice unjustly justifiable unjustifiable
+technology technological technologically
+identical identically identity identified
+definition definitive definitively indefinite infinite infinity finality finalist
+confinement refinement confineable confinedly
+locomotive locomotion locational
+importantly importation importantly
+consolation desolation isolation isolate
+phonology phonological phonetically
+reinvention reinventive inventively conventionally
+reenactment enactment reenact
+reportedly remotely remoteness
+commissioner commissioning
+objectively objectiveness objectivity
+biotechnology
+efinitely indefinitely indefinable
+definition definitely definitively
+generally generalize generously generosity generously
+visually visually visibility visually
+resolution resolute resolutely resoluteness
+innovation innovate innovatively renovate renovation
+desolation consolation isolation resolution dissolution absolution`.split(/\s+/).filter(w => w.length >= 4);
+
+// deduplicate
+const WORD_SET = [...new Set(WORDS)];
+
+// ─── ALGORITHM ──────────────────────────────────────────────────────────────
+// Returns the decomposition using the MOST tiles (most interesting for puzzle)
+function decomposeWord(word, tiles) {
+  const n = tiles.length;
+  let best = null;
+  function bt(pos, mask, path) {
+    if (pos === word.length) {
+      if (!best || path.length > best.length) best = [...path];
+      return;
+    }
+    for (let i = 0; i < n; i++) {
+      if (mask >> i & 1) continue;
+      const t = tiles[i];
+      if (word.length - pos >= t.length && word.slice(pos, pos + t.length) === t) {
+        bt(pos + t.length, mask | (1 << i), [...path, t]);
+      }
+    }
+  }
+  bt(0, 0, []);
+  return best; // null if not formable
+}
+
+function findWords(tileObjs) {
+  const tiles = tileObjs.map(t => t.tile);
+  const results = [];
+  for (const word of WORD_SET) {
+    const decomp = decomposeWord(word, tiles);
+    if (decomp) results.push({ word, decomp, tileCount: decomp.length });
+  }
+  return results;
+}
+
+// ─── SEED WORD DECOMPOSITION ─────────────────────────────────────────────────
+// Decomposes a word using the full vocabulary (all tiles available), returns
+// the tile objects for the max-tile decomposition, or null if not possible.
+function decomposeFromVocab(word) {
+  const tiles = ALL_TILES.map(t => t.tile);
+  let best = null;
+  function bt(pos, used, path) {
+    if (pos === word.length) {
+      if (!best || path.length > best.length) best = [...path];
+      return;
+    }
+    for (let i = 0; i < tiles.length; i++) {
+      if (used.has(i)) continue;
+      const t = tiles[i];
+      if (word.length - pos >= t.length && word.slice(pos, pos + t.length) === t) {
+        used.add(i);
+        bt(pos + t.length, used, [...path, i]);
+        used.delete(i);
+      }
+    }
+  }
+  bt(0, new Set(), []);
+  if (!best) return null;
+  return best.map(i => ALL_TILES[i]);
+}
+
+// ─── GENERATION ─────────────────────────────────────────────────────────────
+function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generateSet(lockedTiles = [], minWords = 8, maxAttempts = 15000) {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const set = [...lockedTiles];
+    const usedTiles = new Set(set.map(t => t.tile));
+
+    const pool = (cat) => ALL_TILES.filter(t => t.cat === cat && !usedTiles.has(t.tile));
+
+    function pick(cat) {
+      const p = pool(cat);
+      if (!p.length) return null;
+      const t = pickRandom(p);
+      usedTiles.add(t.tile);
+      set.push(t);
+      return t;
+    }
+
+    // Guaranteed minimums (skip if locked tiles already cover)
+    const cats = set.map(t => t.cat);
+    if (!cats.includes('vowels'))   pick('vowels');
+    if (!cats.includes('suffixes')) pick('suffixes');
+    if (!cats.includes('roots'))    pick('roots');
+    if (!cats.includes('prefixes') && !cats.includes('onsets')) {
+      Math.random() < 0.5 ? pick('prefixes') : pick('onsets');
+    }
+
+    // Fill remaining randomly — heavy bias toward roots to enable long chains
+    const weighted = [
+      ...Array(5).fill('roots'),
+      ...Array(4).fill('prefixes'),
+      ...Array(4).fill('suffixes'),
+      ...Array(2).fill('bodies'),
+      ...Array(2).fill('onsets'),
+      'vowels', 'cv'
+    ];
+
+    while (set.length < 12) {
+      const cat = pickRandom(weighted);
+      const p = pool(cat);
+      if (!p.length) continue;
+      const t = pickRandom(p);
+      usedTiles.add(t.tile);
+      set.push(t);
+    }
+
+    const words = findWords(set);
+    const longWords = words.filter(w => w.tileCount >= 3).length;
+    const veryLongList = words.filter(w => w.tileCount >= 4);
+    if (words.length >= minWords && longWords >= 3 && veryLongList.length >= 2) {
+      // Prefer sets where the two 4-tile words use different root tiles
+      const rootSet = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
+      const roots1 = veryLongList[0].decomp.filter(t => rootSet.has(t));
+      const roots2 = veryLongList[1].decomp.filter(t => rootSet.has(t));
+      const sharedRoots = roots1.filter(t => roots2.includes(t)).length;
+      if (sharedRoots === 0) return { tiles: set, words };
+      // After 12000 attempts, accept any set that meets the word/tile counts
+      if (attempt >= 12000) return { tiles: set, words };
+    }
+  }
+  return null;
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentTiles = [];
+let currentWords = [];
+let lockedTiles = new Set(); // indices
+let starredWords = [];
+let minWordLen = 0;
+let wordsVisible = false;
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderTiles() {
+  const grid = document.getElementById('tileGrid');
+  grid.innerHTML = '';
+  currentTiles.forEach((t, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = `tile-wrap cat-${t.cat}`;
+
+    const tile = document.createElement('div');
+    tile.className = 'tile' + (lockedTiles.has(i) ? ' locked' : '');
+    tile.textContent = t.tile;
+    tile.title = 'Click to swap · Right-click to lock/unlock';
+    tile.addEventListener('click', () => swapTile(i));
+    tile.addEventListener('contextmenu', e => { e.preventDefault(); toggleLock(i); });
+
+    const dot = document.createElement('div');
+    dot.className = 'tile-dot';
+
+    const label = document.createElement('div');
+    label.className = 'cat-label';
+    label.textContent = CAT_LABELS[t.cat];
+
+    wrap.append(tile, dot, label);
+    grid.appendChild(wrap);
+  });
+}
+
+function renderWords() {
+  const list = document.getElementById('wordList');
+  const title = document.getElementById('wordListTitle');
+
+  const filtered = currentWords.filter(w => w.word.length >= minWordLen);
+  const sorted = [...filtered].sort((a, b) => b.tileCount - a.tileCount || b.word.length - a.word.length || a.word.localeCompare(b.word));
+
+  const longCount = filtered.filter(w => w.tileCount >= 3).length;
+  title.textContent = `Words — ${filtered.length} found (${longCount} use 3+ tiles)`;
+
+  if (!sorted.length) {
+    list.innerHTML = '<div class="empty-state">No words match this filter</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  sorted.forEach(({ word, decomp, tileCount }) => {
+    const isStarred = starredWords.includes(word);
+    const item = document.createElement('div');
+    item.className = 'word-item' + (isStarred ? ' starred' : '');
+
+    const info = document.createElement('div');
+    info.className = 'word-info';
+
+    const text = document.createElement('div');
+    text.className = 'word-text';
+    text.textContent = word;
+
+    const decompEl = document.createElement('div');
+    decompEl.className = 'word-decomp';
+    decomp.forEach(t => {
+      const s = document.createElement('span');
+      s.textContent = t;
+      decompEl.appendChild(s);
+    });
+
+    info.append(text, decompEl);
+
+    const badge = document.createElement('span');
+    badge.className = 'tile-badge' + (tileCount >= 3 ? ' long' : '');
+    badge.textContent = `${tileCount} tile${tileCount !== 1 ? 's' : ''}`;
+
+    const star = document.createElement('button');
+    star.className = 'star-btn' + (isStarred ? ' active' : '');
+    star.textContent = '★';
+    star.title = isStarred ? 'Unstar' : 'Add to puzzle plan';
+    star.addEventListener('click', (e) => { e.stopPropagation(); toggleStar(word); });
+
+    item.append(info, badge, star);
+    item.addEventListener('click', () => toggleStar(word));
+    list.appendChild(item);
+  });
+}
+
+function renderPlan() {
+  const plan = document.getElementById('puzzlePlan');
+  if (!starredWords.length) {
+    plan.innerHTML = '<div class="plan-empty">No words starred yet</div>';
+    return;
+  }
+  plan.innerHTML = '';
+  starredWords.forEach((word, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'plan-slot';
+
+    const num = document.createElement('span');
+    num.className = 'plan-num';
+    num.textContent = i + 1;
+
+    const wordEl = document.createElement('span');
+    wordEl.className = 'plan-word';
+    wordEl.textContent = word;
+
+    const clue = document.createElement('input');
+    clue.className = 'plan-clue';
+    clue.placeholder = 'Write your clue…';
+    clue.dataset.word = word;
+
+    const remove = document.createElement('button');
+    remove.className = 'plan-remove';
+    remove.textContent = '×';
+    remove.addEventListener('click', () => toggleStar(word));
+
+    slot.append(num, wordEl, clue, remove);
+    plan.appendChild(slot);
+  });
+}
+
+function renderWordCount() {
+  const el = document.getElementById('wordCount');
+  if (!currentTiles.length) { el.innerHTML = '—<span>words found</span>'; return; }
+  const n = currentWords.filter(w => w.word.length >= minWordLen).length;
+  const color = n >= 12 ? '#10b981' : n >= 8 ? '#5c5fcf' : '#f97316';
+  el.innerHTML = `<span style="color:${color};font-size:26px;font-weight:900">${n}</span><span>words found</span>`;
+}
+
+function renderTip() {
+  const el = document.getElementById('tipText');
+  if (!currentTiles.length) { el.textContent = ''; return; }
+  const n = currentWords.length;
+  const long = currentWords.filter(w => w.tileCount >= 3).length;
+  const short = n - long;
+  if (n >= 8) el.textContent = `${long} long (3+ tiles) · ${short} short — ${n} total`;
+  else el.textContent = `Only ${n} words. Try generating again or swapping a tile.`;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+async function generate() {
+  const btn = document.getElementById('generateBtn');
+  const genEl = document.getElementById('generating');
+  btn.disabled = true;
+  genEl.classList.add('visible');
+
+  // Run off main thread briefly
+  await new Promise(r => setTimeout(r, 10));
+
+  // Seed word: pre-lock tiles required to spell it
+  const seedWord = document.getElementById('seedInput').value.trim().toLowerCase();
+  let seedTiles = [];
+  if (seedWord) {
+    seedTiles = decomposeFromVocab(seedWord) || [];
+    if (!seedTiles.length) {
+      showToast(`"${seedWord}" can't be built from the tile vocabulary`);
+      btn.disabled = false;
+      genEl.classList.remove('visible');
+      return;
+    }
+    if (seedTiles.length > 11) {
+      showToast(`"${seedWord}" needs ${seedTiles.length} tiles — too many to fit in a set of 12`);
+      btn.disabled = false;
+      genEl.classList.remove('visible');
+      return;
+    }
+  }
+
+  // Merge seed tiles with any currently locked tiles (seed takes priority)
+  const manualLocked = currentTiles.filter((_, i) => lockedTiles.has(i));
+  const seedTileKeys = new Set(seedTiles.map(t => t.tile));
+  const extraLocked = manualLocked.filter(t => !seedTileKeys.has(t.tile));
+  const locked = [...seedTiles, ...extraLocked];
+
+  const result = generateSet(locked);
+
+  btn.disabled = false;
+  genEl.classList.remove('visible');
+
+  if (!result) {
+    if (locked.length > 0) {
+      showToast('Couldn\'t find a valid set with those locked tiles. Try unlocking some.');
+    } else {
+      showToast('Generation failed — try again!');
+    }
+    return;
+  }
+
+  currentTiles = result.tiles;
+  currentWords = result.words;
+  lockedTiles = new Set(
+    result.tiles.map((t, i) => locked.some(l => l.tile === t.tile) ? i : -1).filter(i => i >= 0)
+  );
+
+  renderTiles();
+  renderWordCount();
+  renderWords();
+  renderTip();
+}
+
+function swapTile(idx) {
+  if (lockedTiles.has(idx)) { showToast('Tile is locked — right-click to unlock'); return; }
+  const usedTiles = new Set(currentTiles.map(t => t.tile));
+  const pool = ALL_TILES.filter(t => !usedTiles.has(t.tile));
+  if (!pool.length) return;
+  const replacement = pickRandom(pool);
+  currentTiles[idx] = replacement;
+  currentWords = findWords(currentTiles);
+  renderTiles();
+  renderWordCount();
+  renderWords();
+  renderTip();
+}
+
+function toggleLock(idx) {
+  if (lockedTiles.has(idx)) lockedTiles.delete(idx);
+  else lockedTiles.add(idx);
+  renderTiles();
+}
+
+function toggleStar(word) {
+  if (starredWords.includes(word)) {
+    starredWords = starredWords.filter(w => w !== word);
+  } else {
+    if (starredWords.length >= 5) { showToast('Puzzle plan full (5 words max)'); return; }
+    starredWords.push(word);
+  }
+  renderWords();
+  renderPlan();
+}
+
+function copySet() {
+  if (!currentTiles.length) return;
+  const text = currentTiles.map(t => t.tile).join(', ');
+  navigator.clipboard.writeText(text);
+  showToast('Tile set copied!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ─── EVENTS ──────────────────────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', generate);
+document.getElementById('copySetBtn').addEventListener('click', copySet);
+
+// Seed word live feedback
+const seedInput = document.getElementById('seedInput');
+const seedFeedback = document.getElementById('seedFeedback');
+const clearSeedBtn = document.getElementById('clearSeedBtn');
+
+seedInput.addEventListener('input', () => {
+  const word = seedInput.value.trim().toLowerCase();
+  clearSeedBtn.style.display = word ? '' : 'none';
+  if (!word) { seedFeedback.textContent = ''; seedFeedback.className = 'seed-feedback'; return; }
+  const decomp = decomposeFromVocab(word);
+  if (!decomp) {
+    seedFeedback.textContent = `"${word}" can't be built from the tile vocabulary`;
+    seedFeedback.className = 'seed-feedback err';
+  } else if (decomp.length > 11) {
+    seedFeedback.textContent = `Needs ${decomp.length} tiles — too many for a 12-tile set`;
+    seedFeedback.className = 'seed-feedback err';
+  } else {
+    const chain = decomp.map(t => t.tile).join(' · ');
+    seedFeedback.textContent = `✓ ${decomp.length} tile${decomp.length !== 1 ? 's' : ''}: ${chain}`;
+    seedFeedback.className = 'seed-feedback ok';
+  }
+});
+
+clearSeedBtn.addEventListener('click', () => {
+  seedInput.value = '';
+  clearSeedBtn.style.display = 'none';
+  seedFeedback.textContent = '';
+  seedFeedback.className = 'seed-feedback';
+});
+
+document.getElementById('toggleWordsBtn').addEventListener('click', () => {
+  wordsVisible = !wordsVisible;
+  document.getElementById('wordList').classList.toggle('visible', wordsVisible);
+  document.getElementById('toggleWordsBtn').textContent = wordsVisible ? 'Hide words' : 'Show words';
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    minWordLen = parseInt(btn.dataset.min);
+    renderWordCount();
+    renderWords();
+  });
+});
+
+document.getElementById('clearPlanBtn').addEventListener('click', () => {
+  starredWords = [];
+  renderWords();
+  renderPlan();
+});
+</script>
+</body>
+</html>
