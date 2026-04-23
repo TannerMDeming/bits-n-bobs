@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import HowToPlayModal from './HowToPlayModal';
 import type { Puzzle } from '../types';
+import chevronUrl from '../assets/chevron.png';
 
 interface Props {
   puzzle: Puzzle;
@@ -12,7 +13,13 @@ interface Props {
   onPlaceTile: (tile: string) => void;
   onReturnTile: (slotIdx: number) => void;
   onRoundComplete: () => void;
+  onSkipForward: () => void;
+  onSkipBack: () => void;
+  canSkipForward: boolean;
+  canSkipBack: boolean;
   roundColors: string[];
+  completedRounds: Set<number>;
+  skippedRounds: Set<number>;
 }
 
 function formatTime(secs: number) {
@@ -49,7 +56,13 @@ export default function GameScreen({
   onPlaceTile,
   onReturnTile,
   onRoundComplete,
+  onSkipForward,
+  onSkipBack,
+  canSkipForward,
+  canSkipBack,
   roundColors,
+  completedRounds,
+  skippedRounds,
 }: Props) {
   const round = puzzle.rounds[roundIndex];
   const inTray = new Set(tray.filter(Boolean) as string[]);
@@ -57,7 +70,8 @@ export default function GameScreen({
 
   const gridTileSize = Math.floor((335 - 3 * 8) / 4); // matches the 4-col grid tile width
   const trayTileSize = Math.min(gridTileSize, Math.floor((335 - (tray.length - 1) * 7) / tray.length));
-  const TRAY_CONTAINER_HEIGHT = trayTileSize + 4;
+  // Tray container is always fixed height (max tile size) so clue never jumps between rounds
+  const TRAY_CONTAINER_HEIGHT = gridTileSize + 4;
   const roundColor = roundColors[roundIndex];
 
   // ── Info modal ──
@@ -155,7 +169,7 @@ export default function GameScreen({
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      padding: '16px 20px 24px',
+      padding: '16px 20px 56px',
       background: 'var(--bg)',
       position: 'relative',
     }}>
@@ -252,7 +266,6 @@ export default function GameScreen({
 
       {/* ── Answer Tray ── */}
       <div style={{
-        marginBottom: 42,
         flexShrink: 0,
         height: TRAY_CONTAINER_HEIGHT,
         position: 'relative',
@@ -332,36 +345,85 @@ export default function GameScreen({
         )}
       </div>
 
-      {/* ── Clue ── */}
+      {/* ── Clue — sits close below the tray ── */}
       <div style={{
+        flexShrink: 0,
+        marginTop: 28,
         textAlign: 'center',
         fontFamily: 'var(--font-game)',
         fontWeight: 400,
         fontSize: 22,
         lineHeight: 1.35,
         color: '#111',
-        flexShrink: 0,
       }}>
         {round.clue}
       </div>
 
-      <div style={{ flex: 1 }} />
-
-      {/* ── Round Progress Pills ── */}
-      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-        {puzzle.rounds.map((_, i) => (
-          <div
-            key={i}
-            style={{
-              height: 16,
-              flex: 1,
-              borderRadius: 100,
-              background: i <= roundIndex ? roundColors[i] : '#D1D5DB',
-              opacity: i > roundIndex ? 0.4 : 1,
-              transition: 'background 0.3s ease',
-            }}
+      {/* ── Skip arrows + Progress Pills — pinned above bottom ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginTop: 'auto' }}>
+        {/* Left chevron */}
+        <button
+          onClick={onSkipBack}
+          disabled={!canSkipBack}
+          style={{
+            background: 'none', border: 'none', padding: 0,
+            cursor: canSkipBack ? 'pointer' : 'default',
+            opacity: canSkipBack ? 1 : 0,
+            flexShrink: 0,
+            display: 'flex', alignItems: 'center',
+          }}
+        >
+          <img
+            src={chevronUrl}
+            alt="previous"
+            style={{ width: 12, height: 16, transform: 'scaleX(-1)', opacity: 0.45 }}
+            draggable={false}
           />
-        ))}
+        </button>
+
+        {/* Pills */}
+        <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+          {puzzle.rounds.map((_, i) => {
+            const isCompleted = completedRounds.has(i);
+            const isSkipped = skippedRounds.has(i);
+            const isCurrent = i === roundIndex;
+            let bg = '#D1D5DB';
+            let opacity = 0.4;
+            if (isCompleted) { bg = roundColors[i]; opacity = 1; }
+            else if (isCurrent) { bg = roundColors[i]; opacity = 1; }
+            else if (isSkipped) { bg = roundColors[i]; opacity = 0.35; }
+            return (
+              <div
+                key={i}
+                style={{
+                  height: 16, flex: 1, borderRadius: 100,
+                  background: bg, opacity,
+                  transition: 'background 0.3s ease, opacity 0.3s ease',
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {/* Right chevron */}
+        <button
+          onClick={onSkipForward}
+          disabled={!canSkipForward}
+          style={{
+            background: 'none', border: 'none', padding: 0,
+            cursor: canSkipForward ? 'pointer' : 'default',
+            opacity: canSkipForward ? 1 : 0,
+            flexShrink: 0,
+            display: 'flex', alignItems: 'center',
+          }}
+        >
+          <img
+            src={chevronUrl}
+            alt="next"
+            style={{ width: 12, height: 16, opacity: 0.45 }}
+            draggable={false}
+          />
+        </button>
       </div>
 
       {/* How to Play modal — sibling of all game content, positioned relative to this outer div */}

@@ -19,30 +19,48 @@ export default function App() {
   const slotCount = currentRound?.tiles.length ?? 0;
   const [tray, setTray] = useState<(string | null)[]>(Array(slotCount).fill(null));
 
+  // Per-round time tracking — accumulated seconds per round index
+  const [roundAccumTimes, setRoundAccumTimes] = useState<number[]>([]);
+  // Final solved times, indexed by round (used by ResultsScreen)
   const [roundTimes, setRoundTimes] = useState<number[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const roundStartRef = useRef<number>(Date.now());
   const [elapsed, setElapsed] = useState(0);
+
+  // Track which rounds are completed / skipped
+  const [completedRounds, setCompletedRounds] = useState<Set<number>>(new Set());
+  const [skippedRounds, setSkippedRounds] = useState<Set<number>>(new Set());
+
+  // Init per-round arrays once puzzle loads
+  useEffect(() => {
+    if (puzzle) {
+      setRoundAccumTimes(Array(puzzle.rounds.length).fill(0));
+      setRoundTimes(Array(puzzle.rounds.length).fill(0));
+    }
+  }, [puzzle]);
 
   // Reset tray when round changes
   useEffect(() => {
     if (currentRound) {
       setTray(Array(currentRound.tiles.length).fill(null));
       roundStartRef.current = Date.now();
-      setElapsed(0);
+      // Show accumulated time immediately
+      setElapsed(roundAccumTimes[roundIndex] ?? 0);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundIndex, currentRound]);
 
-  // Timer
+  // Timer — shows per-round elapsed (accumulated + current session)
   useEffect(() => {
     if (phase !== 'playing') {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
     timerRef.current = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - roundStartRef.current) / 1000));
+      setElapsed((roundAccumTimes[roundIndex] ?? 0) + Math.floor((Date.now() - roundStartRef.current) / 1000));
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, roundIndex]);
 
   // ─── COLOR LOGIC ─────────────────────────────────────────────────────────
@@ -62,6 +80,27 @@ export default function App() {
 
   const tileColor = getTileColor();
   const isComplete = correctCount === totalSlots && totalSlots > 0;
+
+  // ─── HELPERS ─────────────────────────────────────────────────────────────
+
+  // Find next/prev round that isn't completed, wrapping from fromIndex
+  function findNext(from: number, completed: Set<number>, total: number): number {
+    // Look forward first, then wrap around from the beginning
+    for (let i = from + 1; i < total; i++) {
+      if (!completed.has(i)) return i;
+    }
+    for (let i = 0; i < from; i++) {
+      if (!completed.has(i)) return i;
+    }
+    return -1;
+  }
+
+  function findPrev(from: number, completed: Set<number>): number {
+    for (let i = from - 1; i >= 0; i--) {
+      if (!completed.has(i)) return i;
+    }
+    return -1;
+  }
 
   // ─── ACTIONS ─────────────────────────────────────────────────────────────
   const handlePlay = useCallback(() => {
@@ -90,14 +129,81 @@ export default function App() {
 
   const handleRoundComplete = useCallback(() => {
     if (!puzzle) return;
-    const time = Math.floor((Date.now() - roundStartRef.current) / 1000);
-    setRoundTimes(prev => [...prev, time]);
-    if (roundIndex + 1 >= puzzle.rounds.length) {
+
+    // Record final time for this round
+    const sessionSecs = Math.floor((Date.now() - roundStartRef.current) / 1000);
+    const finalTime = (roundAccumTimes[roundIndex] ?? 0) + sessionSecs;
+
+    setRoundTimes(prev => {
+      const next = [...prev];
+      next[roundIndex] = finalTime;
+      return next;
+    });
+
+    const newCompleted = new Set([...completedRounds, roundIndex]);
+    setCompletedRounds(newCompleted);
+    setSkippedRounds(prev => { const s = new Set(prev); s.delete(roundIndex); return s; });
+
+    // All rounds done → results
+    if (newCompleted.size >= puzzle.rounds.length) {
       setPhase('results');
-    } else {
-      setRoundIndex(i => i + 1);
+      return;
     }
-  }, [roundIndex, puzzle]);
+
+    // Auto-advance to next incomplete round
+    const next = findNext(roundIndex, newCompleted, puzzle.rounds.length);
+    if (next !== -1) setRoundIndex(next);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundIndex, puzzle, completedRounds, roundAccumTimes]);
+
+  const handleSkipForward = useCallback(() => {
+    if (!puzzle) return;
+    // Snapshot session time NOW before the ref is updated
+    const sessionSecs = Math.floor((Date.now() - roundStartRef.current) / 1000);
+    setRoundAccumTimes(prev => {
+      const next = [...prev];
+      next[roundIndex] = (prev[roundIndex] ?? 0) + sessionSecs;
+      return next;
+    });
+    if (!completedRounds.has(roundIndex)) {
+      setSkippedRounds(prev => new Set([...prev, roundIndex]));
+    }
+    const next = findNextNoWrap(roundIndex, completedRounds, puzzle.rounds.length);
+    if (next !== -1) {
+      setRoundIndex(next);
+      roundStartRef.current = Date.now();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundIndex, puzzle, completedRounds]);
+
+  const handleSkipBack = useCallback(() => {
+    // Snapshot session time NOW before the ref is updated
+    const sessionSecs = Math.floor((Date.now() - roundStartRef.current) / 1000);
+    setRoundAccumTimes(prev => {
+      const next = [...prev];
+      next[roundIndex] = (prev[roundIndex] ?? 0) + sessionSecs;
+      return next;
+    });
+    if (!completedRounds.has(roundIndex)) {
+      setSkippedRounds(prev => new Set([...prev, roundIndex]));
+    }
+    const prev = findPrev(roundIndex, completedRounds);
+    if (prev !== -1) {
+      setRoundIndex(prev);
+      roundStartRef.current = Date.now();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundIndex, completedRounds]);
+
+  // For the skip button, only look forward (no wrap) — wrapping is only for auto-advance after solving
+  function findNextNoWrap(from: number, completed: Set<number>, total: number): number {
+    for (let i = from + 1; i < total; i++) {
+      if (!completed.has(i)) return i;
+    }
+    return -1;
+  }
+  const canSkipForward = puzzle ? findNextNoWrap(roundIndex, completedRounds, puzzle.rounds.length) !== -1 : false;
+  const canSkipBack = findPrev(roundIndex, completedRounds) !== -1;
 
   // ─── RENDER ──────────────────────────────────────────────────────────────
   if (!puzzle) return null;
@@ -123,6 +229,9 @@ export default function App() {
             setRoundIndex(0);
             setRoundTimes([]);
             setElapsed(0);
+            setCompletedRounds(new Set());
+            setSkippedRounds(new Set());
+            setRoundAccumTimes(Array(puzzle.rounds.length).fill(0));
           }}
         />
       </div>
@@ -141,7 +250,13 @@ export default function App() {
         onPlaceTile={placeTile}
         onReturnTile={returnTile}
         onRoundComplete={handleRoundComplete}
+        onSkipForward={handleSkipForward}
+        onSkipBack={handleSkipBack}
+        canSkipForward={canSkipForward}
+        canSkipBack={canSkipBack}
         roundColors={ROUND_COLOR_FINAL}
+        completedRounds={completedRounds}
+        skippedRounds={skippedRounds}
       />
     </div>
   );
