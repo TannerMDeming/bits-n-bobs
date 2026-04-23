@@ -14,7 +14,7 @@
   {
     "id": 2,
     "date": "2026-04-23",
-    "tileset": ["ment", "de", "tion", "lo", "ev", "al", "vent", "mo", "est", "e", "ful", "cal"],
+    "tileset": ["al", "vent", "ment", "mo", "tion", "cal", "est", "de", "lo", "oc", "e", "ful"],
     "rounds": [
       { "answer": "local", "tiles": ["lo", "cal"], "clue": "Farmer's market produce" },
       { "answer": "deal", "tiles": ["de", "al"], "clue": "In poker, in real estate" },
