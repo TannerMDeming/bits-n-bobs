@@ -31,7 +31,7 @@ const OVERLAP      = 12;
 const POOL_HAND    = (i: number): [number, number] => [poolCx(i),  POOL_TOP + T - OVERLAP];
 const TRAY_HAND    = (i: number): [number, number] => [trayCx(i),  TRAY_TOP + T - OVERLAP];
 
-const ANIM_H       = TRAY_TOP + T + HAND_H - OVERLAP + 14;  // 191
+const ANIM_H       = TRAY_TOP + T + HAND_H - OVERLAP + 4;   // 181
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 const C1 = '#C3DAFF';
@@ -54,33 +54,39 @@ interface Frame {
 }
 
 const FRAMES: Frame[] = [
-  // 0 — idle: log already placed
-  { ms: 900,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
-  // 1 — hand appears at co
+  // 0 — idle: empty tray
+  { ms: 800,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: null },
+  // 1 — hand appears at log
+  { ms: 250,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: POOL_HAND(0) },
+  // 2 — tap log
+  { ms: 150,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: POOL_HAND(0), tap: true },
+  // 3 — log placed, lights up
+  { ms: 380,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
+  // 4 — hand appears at co
   { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1) },
-  // 2 — tap co (finger jabs up)
+  // 5 — tap co
   { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1), tap: true },
-  // 3 — co placed: whole guess goes gray, shake
+  // 6 — co placed: whole guess goes gray, shake
   { ms: 650,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: null, shake: true },
-  // 4 — hand appears at co in tray (slot 1)
+  // 7 — hand appears at co in tray (slot 1)
   { ms: 250,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1) },
-  // 5 — tap co to remove it
+  // 8 — tap co to remove it
   { ms: 150,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1), tap: true },
-  // 6 — co removed, log back to blue
+  // 9 — co removed, log back to blue
   { ms: 300,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
-  // 7 — hand appears at i
+  // 10 — hand appears at i
   { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2) },
-  // 8 — tap i
+  // 11 — tap i
   { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2), tap: true },
-  // 9 — i placed (log + i, mid blue)
+  // 12 — i placed (log + i, mid blue)
   { ms: 380,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: null },
-  // 10 — hand appears at cal
+  // 13 — hand appears at cal
   { ms: 250,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3) },
-  // 11 — tap cal
+  // 14 — tap cal
   { ms: 150,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3), tap: true },
-  // 12 — all placed, full blue
+  // 15 — all placed, full blue
   { ms: 550,  used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: false, hand: null },
-  // 13 — reveal bar "logical"
+  // 16 — reveal bar "logical"
   { ms: 1100, used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: true,  hand: null },
 ];
 
@@ -265,9 +271,10 @@ export default function HowToPlayModal({ onClose }: Props) {
                   pointerEvents: 'none',
                   userSelect: 'none',
                   imageRendering: 'pixelated',
-                  // translateY(-7px) on tap: finger jabs upward into the tile
-                  transform: tap ? 'translateY(-7px)' : 'translateY(0px)',
-                  transition: 'transform 90ms ease',
+                  // Tap: finger jabs up + hand compresses from fingertip down
+                  transform: tap ? 'translateY(-8px) scaleY(0.85)' : 'translateY(0px) scaleY(1)',
+                  transformOrigin: 'center top',
+                  transition: 'transform 160ms cubic-bezier(0.0, 0.0, 0.2, 1)',
                 }}
               />
             )}
@@ -277,7 +284,7 @@ export default function HowToPlayModal({ onClose }: Props) {
           <p style={{
             fontFamily: 'var(--font-game)', fontWeight: 400,
             fontSize: 20, color: '#111',
-            textAlign: 'center', marginTop: 12,
+            textAlign: 'center', marginTop: 6,
             lineHeight: 1.3,
           }}>
             Makes sense
