@@ -56,6 +56,13 @@ body {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes handTap {
+  0%   { transform: translateY(22px); opacity: 0; }
+  18%  { opacity: 1; }
+  62%  { transform: translateY(-8px) scaleY(0.85); }
+  100% { transform: translateY(-8px) scaleY(0.85); }
+}
+
 @keyframes trayShake {
   0%   { transform: translateX(0); }
   25%  { transform: translateX(-4px); }

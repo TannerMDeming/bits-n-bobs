@@ -40,57 +40,47 @@ const C3 = '#2871EF';
 const CG = '#D1D5DB';
 
 // ── Frames ───────────────────────────────────────────────────────────────────
-// Sequence: log pre-placed → tap wrong tile (co) → gray+shake → remove co →
-//           tap i → tap cal → reveal "logical" → loop
+// Pool order: [log(0), co(1), cal(2), i(3)] — scrambled so answer isn't obvious
+// Hand uses CSS handTap animation: enters from below already moving, arrives + presses.
+// No separate appear/tap frames — one frame per tap, animation handles the arc.
 interface Frame {
-  ms:      number;
-  used:    number[];
-  tray:    (string | null)[];
-  wrong:   boolean;
-  reveal:  boolean;
-  hand:    [number, number] | null;
-  tap?:    boolean;
-  shake?:  boolean;
+  ms:     number;
+  used:   number[];
+  tray:   (string | null)[];
+  wrong:  boolean;
+  reveal: boolean;
+  hand:   [number, number] | null;
+  shake?: boolean;
 }
 
 const FRAMES: Frame[] = [
-  // 0 — idle: empty tray
-  { ms: 800,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: null },
-  // 1 — hand appears at log
-  { ms: 250,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: POOL_HAND(0) },
-  // 2 — tap log
-  { ms: 150,  used: [],      tray: [null, null, null],   wrong: false, reveal: false, hand: POOL_HAND(0), tap: true },
-  // 3 — log placed, lights up
-  { ms: 380,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
-  // 4 — hand appears at co
-  { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1) },
-  // 5 — tap co
-  { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1), tap: true },
-  // 6 — co placed: whole guess goes gray, shake
-  { ms: 650,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: null, shake: true },
-  // 7 — hand appears at co in tray (slot 1)
-  { ms: 250,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1) },
-  // 8 — tap co to remove it
-  { ms: 150,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1), tap: true },
-  // 9 — co removed, log back to blue
-  { ms: 300,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
-  // 10 — hand appears at i
-  { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2) },
-  // 11 — tap i
-  { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2), tap: true },
-  // 12 — i placed (log + i, mid blue)
-  { ms: 380,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: null },
-  // 13 — hand appears at cal
-  { ms: 250,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3) },
-  // 14 — tap cal
-  { ms: 150,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3), tap: true },
-  // 15 — all placed, full blue
-  { ms: 550,  used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: false, hand: null },
-  // 16 — reveal bar "logical"
-  { ms: 1100, used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: true,  hand: null },
+  // 0 — idle
+  { ms: 800,  used: [],         tray: [null, null, null],    wrong: false, reveal: false, hand: null },
+  // 1 — tap log (pool[0])
+  { ms: 420,  used: [],         tray: [null, null, null],    wrong: false, reveal: false, hand: POOL_HAND(0) },
+  // 2 — log placed
+  { ms: 320,  used: [0],        tray: ['log', null, null],   wrong: false, reveal: false, hand: null },
+  // 3 — tap co (pool[1])
+  { ms: 420,  used: [0],        tray: ['log', null, null],   wrong: false, reveal: false, hand: POOL_HAND(1) },
+  // 4 — co placed: gray + shake
+  { ms: 650,  used: [0, 1],     tray: ['log', 'co', null],   wrong: true,  reveal: false, hand: null, shake: true },
+  // 5 — tap co in tray to remove (slot 1)
+  { ms: 420,  used: [0, 1],     tray: ['log', 'co', null],   wrong: true,  reveal: false, hand: TRAY_HAND(1) },
+  // 6 — co removed, log back to blue
+  { ms: 280,  used: [0],        tray: ['log', null, null],   wrong: false, reveal: false, hand: null },
+  // 7 — tap i (pool[3])
+  { ms: 420,  used: [0],        tray: ['log', null, null],   wrong: false, reveal: false, hand: POOL_HAND(3) },
+  // 8 — i placed (log + i)
+  { ms: 320,  used: [0, 3],     tray: ['log', 'i', null],    wrong: false, reveal: false, hand: null },
+  // 9 — tap cal (pool[2])
+  { ms: 420,  used: [0, 3],     tray: ['log', 'i', null],    wrong: false, reveal: false, hand: POOL_HAND(2) },
+  // 10 — all placed, full blue
+  { ms: 550,  used: [0, 2, 3],  tray: ['log', 'i', 'cal'],   wrong: false, reveal: false, hand: null },
+  // 11 — reveal
+  { ms: 1100, used: [0, 2, 3],  tray: ['log', 'i', 'cal'],   wrong: false, reveal: true,  hand: null },
 ];
 
-const POOL_LABELS = ['log', 'co', 'i', 'cal'];
+const POOL_LABELS = ['log', 'co', 'cal', 'i'];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function HowToPlayModal({ onClose }: Props) {
@@ -113,7 +103,7 @@ export default function HowToPlayModal({ onClose }: Props) {
     return () => clearTimeout(t);
   }, [fi]);
 
-  const { used, tray, wrong, reveal, hand, tap } = FRAMES[fi];
+  const { used, tray, wrong, reveal, hand } = FRAMES[fi];
   const filled    = tray.filter(Boolean).length;
   const tileColor = wrong ? CG
     : filled === 1 ? C1
@@ -271,10 +261,9 @@ export default function HowToPlayModal({ onClose }: Props) {
                   pointerEvents: 'none',
                   userSelect: 'none',
                   imageRendering: 'pixelated',
-                  // Tap: finger jabs up + hand compresses from fingertip down
-                  transform: tap ? 'translateY(-8px) scaleY(0.85)' : 'translateY(0px) scaleY(1)',
                   transformOrigin: 'center top',
-                  transition: 'transform 160ms cubic-bezier(0.0, 0.0, 0.2, 1)',
+                  // Single continuous arc: enters from below already moving, arrives + presses
+                  animation: 'handTap 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
                 }}
               />
             )}
@@ -284,7 +273,7 @@ export default function HowToPlayModal({ onClose }: Props) {
           <p style={{
             fontFamily: 'var(--font-game)', fontWeight: 400,
             fontSize: 20, color: '#111',
-            textAlign: 'center', marginTop: 6,
+            textAlign: 'center', marginTop: 2,
             lineHeight: 1.3,
           }}>
             Makes sense
