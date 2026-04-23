@@ -285,9 +285,9 @@ export default function HowToPlayModal({ onClose }: Props) {
           {/* Rules */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Tap tiles to piece together the\u00a0answer.',
-              'Correct tiles light up. A wrong tile turns your whole guess gray\u00a0\u2014 tap it to take\u00a0it\u00a0back.',
-              'Feeling stuck? Use the arrows to save a clue\u00a0for\u00a0later.',
+              'Tap tiles to piece together the answer.',
+              'Correct tiles light up. A wrong tile turns your whole guess gray. Tap to remove and try again.',
+              'Feeling stuck? Use the arrows to save a clue for later.',
             ].map((rule, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                 <span style={{
