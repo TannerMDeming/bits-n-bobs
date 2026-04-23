@@ -4,38 +4,34 @@ import handUrl from '../assets/hand.png';
 interface Props { onClose: () => void; }
 
 // ── Layout ────────────────────────────────────────────────────────────────────
-const T   = 56;   // tile size (px)
-const G   = 6;    // tile gap
-const W   = 300;  // animation viewport width
+const T  = 56;
+const G  = 6;
+const W  = 300;
 
-// Pool: 4 tiles [log, co, i, cal]
-const POOL_BG_W = 4 * T + 3 * G + 20;          // 262
-const POOL_BG_L = (W - POOL_BG_W) / 2;          // 19
-const PAD_TOP   = 48;                            // space above pool bg for hand
-const PAD_V     = 8;                             // pool vertical padding
-const POOL_TOP  = PAD_TOP + PAD_V;              // 56 — top of pool tiles
-const poolCx    = (i: number) => POOL_BG_L + 10 + i * (T + G) + T / 2;
+// Pool: [log(0), co(1), i(2), cal(3)]
+const POOL_BG_W    = 4 * T + 3 * G + 20;         // 262
+const POOL_BG_L    = (W - POOL_BG_W) / 2;         // 19
+const PAD_TOP      = 10;                           // small top margin only
+const PAD_V        = 8;
+const POOL_TOP     = PAD_TOP + PAD_V;             // 18
+const poolCx       = (i: number) => POOL_BG_L + 10 + i * (T + G) + T / 2;
 
-// Tray: 3 slots
-const TRAY_W    = 3 * T + 2 * G;               // 180
-const TRAY_L    = (W - TRAY_W) / 2;            // 60
-const TRAY_GAP  = 12;
-const TRAY_TOP  = PAD_TOP + PAD_V + T + PAD_V + TRAY_GAP;  // 132
-const trayCx    = (i: number) => TRAY_L + i * (T + G) + T / 2;
+// Tray: 3 slots [log, i, cal]
+const TRAY_W       = 3 * T + 2 * G;              // 180
+const TRAY_L       = (W - TRAY_W) / 2;           // 60
+const TRAY_TOP     = PAD_TOP + PAD_V + T + PAD_V + 14;  // 96
+const trayCx       = (i: number) => TRAY_L + i * (T + G) + T / 2;
 
-const ANIM_H    = TRAY_TOP + T + 10;           // 198
+// Hand PNG: 77×101, finger points UP. Displayed at 28×37px.
+// Finger tip = CSS top of image. Position so finger overlaps tile bottom by OVERLAP px.
+// → hand top = tile_top + T - OVERLAP
+const HAND_W       = 28;
+const HAND_H       = Math.round(HAND_W * 101 / 77);  // 37
+const OVERLAP      = 12;
+const POOL_HAND    = (i: number): [number, number] => [poolCx(i),  POOL_TOP + T - OVERLAP];
+const TRAY_HAND    = (i: number): [number, number] => [trayCx(i),  TRAY_TOP + T - OVERLAP];
 
-// Hand PNG: 77×101 original, displayed at 34×(34*101/77)≈45px
-// Flipped via scaleY(-1) so finger points down.
-// Finger tip (after flip) is at the CSS bottom of the element.
-// We position so the tip is ~10px below the tile top edge.
-// → element top = tile_top - HAND_H + 10
-const HAND_W  = 34;
-const HAND_H  = Math.round(34 * 101 / 77);     // ≈ 45
-
-const handTop = (tileTop: number) => tileTop - HAND_H + 10;
-const POOL_HAND = (i: number): [number, number] => [poolCx(i), handTop(POOL_TOP)];
-const TRAY_HAND = (i: number): [number, number] => [trayCx(i), handTop(TRAY_TOP)];
+const ANIM_H       = TRAY_TOP + T + HAND_H - OVERLAP + 14;  // 191
 
 // ── Colors ────────────────────────────────────────────────────────────────────
 const C1 = '#C3DAFF';
@@ -44,61 +40,48 @@ const C3 = '#2871EF';
 const CG = '#D1D5DB';
 
 // ── Frames ───────────────────────────────────────────────────────────────────
-// Hand appears ONLY at the moment of a tap — no position transitions.
-// Frames alternate: hand-ready → hand-tap → state-change.
-
+// Sequence: log pre-placed → tap wrong tile (co) → gray+shake → remove co →
+//           tap i → tap cal → reveal "logical" → loop
 interface Frame {
-  ms:         number;
-  used:       number[];            // pool tile indices to dim
-  tray:       (string | null)[];  // 3 slots
-  wrong:      boolean;
-  reveal:     boolean;
-  hand:       [number, number] | null;
-  tap?:       boolean;             // true = hand in pressed state (scale down)
-  shake?:     boolean;
+  ms:      number;
+  used:    number[];
+  tray:    (string | null)[];
+  wrong:   boolean;
+  reveal:  boolean;
+  hand:    [number, number] | null;
+  tap?:    boolean;
+  shake?:  boolean;
 }
 
 const FRAMES: Frame[] = [
-  // 0 — idle: show tiles, no hand
-  { ms: 900, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: null },
-
-  // 1 — hand appears over "co"
-  { ms: 250, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: POOL_HAND(1) },
-  // 2 — tap "co"
-  { ms: 150, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: POOL_HAND(1), tap: true },
-  // 3 — co placed: gray + shake, hand gone
-  { ms: 650, used: [1], tray: ['co', null, null], wrong: true, reveal: false, hand: null, shake: true },
-
-  // 4 — hand appears over tray[0] to return co
-  { ms: 250, used: [1], tray: ['co', null, null], wrong: true, reveal: false, hand: TRAY_HAND(0) },
-  // 5 — tap tray[0]
-  { ms: 150, used: [1], tray: ['co', null, null], wrong: true, reveal: false, hand: TRAY_HAND(0), tap: true },
-  // 6 — co returned, tray empty, hand gone
-  { ms: 300, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: null },
-
-  // 7 — hand appears over "log"
-  { ms: 250, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: POOL_HAND(0) },
-  // 8 — tap "log"
-  { ms: 150, used: [], tray: [null, null, null], wrong: false, reveal: false, hand: POOL_HAND(0), tap: true },
-  // 9 — log placed, hand gone
-  { ms: 380, used: [0], tray: ['log', null, null], wrong: false, reveal: false, hand: null },
-
-  // 10 — hand appears over "i"
-  { ms: 250, used: [0], tray: ['log', null, null], wrong: false, reveal: false, hand: POOL_HAND(2) },
-  // 11 — tap "i"
-  { ms: 150, used: [0], tray: ['log', null, null], wrong: false, reveal: false, hand: POOL_HAND(2), tap: true },
-  // 12 — i placed
-  { ms: 380, used: [0, 2], tray: ['log', 'i', null], wrong: false, reveal: false, hand: null },
-
-  // 13 — hand appears over "cal"
-  { ms: 250, used: [0, 2], tray: ['log', 'i', null], wrong: false, reveal: false, hand: POOL_HAND(3) },
-  // 14 — tap "cal"
-  { ms: 150, used: [0, 2], tray: ['log', 'i', null], wrong: false, reveal: false, hand: POOL_HAND(3), tap: true },
-  // 15 — all placed, full blue
-  { ms: 550, used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: false, hand: null },
-
-  // 16 — reveal bar
-  { ms: 1100, used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: true, hand: null },
+  // 0 — idle: log already placed
+  { ms: 900,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
+  // 1 — hand appears at co
+  { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1) },
+  // 2 — tap co (finger jabs up)
+  { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(1), tap: true },
+  // 3 — co placed: whole guess goes gray, shake
+  { ms: 650,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: null, shake: true },
+  // 4 — hand appears at co in tray (slot 1)
+  { ms: 250,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1) },
+  // 5 — tap co to remove it
+  { ms: 150,  used: [0, 1],  tray: ['log', 'co', null],  wrong: true,  reveal: false, hand: TRAY_HAND(1), tap: true },
+  // 6 — co removed, log back to blue
+  { ms: 300,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: null },
+  // 7 — hand appears at i
+  { ms: 250,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2) },
+  // 8 — tap i
+  { ms: 150,  used: [0],     tray: ['log', null, null],  wrong: false, reveal: false, hand: POOL_HAND(2), tap: true },
+  // 9 — i placed (log + i, mid blue)
+  { ms: 380,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: null },
+  // 10 — hand appears at cal
+  { ms: 250,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3) },
+  // 11 — tap cal
+  { ms: 150,  used: [0, 2],  tray: ['log', 'i', null],   wrong: false, reveal: false, hand: POOL_HAND(3), tap: true },
+  // 12 — all placed, full blue
+  { ms: 550,  used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: false, hand: null },
+  // 13 — reveal bar "logical"
+  { ms: 1100, used: [0, 2, 3], tray: ['log', 'i', 'cal'], wrong: false, reveal: true,  hand: null },
 ];
 
 const POOL_LABELS = ['log', 'co', 'i', 'cal'];
@@ -125,8 +108,8 @@ export default function HowToPlayModal({ onClose }: Props) {
   }, [fi]);
 
   const { used, tray, wrong, reveal, hand, tap } = FRAMES[fi];
-  const filled     = tray.filter(Boolean).length;
-  const tileColor  = wrong ? CG
+  const filled    = tray.filter(Boolean).length;
+  const tileColor = wrong ? CG
     : filled === 1 ? C1
     : filled === 2 ? C2
     : C3;
@@ -189,6 +172,7 @@ export default function HowToPlayModal({ onClose }: Props) {
             width: W, height: ANIM_H,
             maxWidth: '100%',
             margin: '0 auto',
+            overflow: 'visible',
           }}>
 
             {/* Pool */}
@@ -228,9 +212,7 @@ export default function HowToPlayModal({ onClose }: Props) {
                 position: 'absolute',
                 left: TRAY_L, top: TRAY_TOP,
                 display: 'flex', gap: G,
-                animation: shakeKey > 0 && fi === 3
-                  ? 'trayShake 300ms ease-in-out'
-                  : 'none',
+                animation: shakeKey > 0 ? 'trayShake 300ms ease-in-out' : 'none',
               }}
             >
               {tray.map((tile, i) => (
@@ -268,7 +250,7 @@ export default function HowToPlayModal({ onClose }: Props) {
               </div>
             )}
 
-            {/* Hand — freshly mounted at each tap position, no position transitions */}
+            {/* Hand — appears/disappears per tap, finger points UP into tile */}
             {hand && (
               <img
                 src={handUrl}
@@ -278,26 +260,24 @@ export default function HowToPlayModal({ onClose }: Props) {
                   position: 'absolute',
                   left: hand[0] - HAND_W / 2,
                   top:  hand[1],
-                  width: HAND_W,
+                  width:  HAND_W,
                   height: HAND_H,
                   pointerEvents: 'none',
                   userSelect: 'none',
                   imageRendering: 'pixelated',
-                  // Flip so finger points down; scale down on tap
-                  transform: `scaleY(-1) scale(${tap ? 0.82 : 1})`,
-                  transformOrigin: 'center bottom',
-                  transition: 'transform 110ms ease',
+                  // translateY(-7px) on tap: finger jabs upward into the tile
+                  transform: tap ? 'translateY(-7px)' : 'translateY(0px)',
+                  transition: 'transform 90ms ease',
                 }}
               />
             )}
-
           </div>
 
-          {/* Clue — lives below the tray like in the game */}
+          {/* Clue — below animation, like in the game */}
           <p style={{
             fontFamily: 'var(--font-game)', fontWeight: 400,
             fontSize: 20, color: '#111',
-            textAlign: 'center', marginTop: 14,
+            textAlign: 'center', marginTop: 12,
             lineHeight: 1.3,
           }}>
             Makes sense
@@ -309,9 +289,9 @@ export default function HowToPlayModal({ onClose }: Props) {
           {/* Rules */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              'Tap tiles to piece together the answer.',
-              'Correct tiles light up. A wrong one turns your whole guess gray. Tap to remove and try again.',
-              'Feeling stuck? Use the arrows to save a clue for later.',
+              'Tap tiles to piece together the\u00a0answer.',
+              'Correct tiles light up. A wrong tile turns your whole guess gray\u00a0\u2014 tap it to take\u00a0it\u00a0back.',
+              'Feeling stuck? Use the arrows to save a clue\u00a0for\u00a0later.',
             ].map((rule, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                 <span style={{
@@ -331,16 +311,14 @@ export default function HowToPlayModal({ onClose }: Props) {
             <button
               onClick={handleClose}
               style={{
-                height: 48,
-                padding: '0 36px',
+                height: 48, padding: '0 44px',
                 background: '#111', color: '#FAF8F6',
                 border: 'none', borderRadius: 100,
                 fontFamily: 'var(--font-ui)', fontWeight: 800, fontSize: 16,
                 cursor: 'pointer', letterSpacing: '0.01em',
-                flexShrink: 0,
               }}
             >
-              Makes sense
+              Play
             </button>
           </div>
 
