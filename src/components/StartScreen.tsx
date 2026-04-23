@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import logoUrl from '../assets/logo.png';
 import type { Puzzle } from '../types';
 import { formatPuzzleDate } from '../puzzle';
@@ -13,6 +13,18 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
   const puzzleNum = String(puzzle.id).padStart(3, '0');
   const puzzleDate = formatPuzzleDate(puzzle.date);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+
+  // Auto-open for first-time visitors
+  useEffect(() => {
+    if (!localStorage.getItem('bnb_seenHowToPlay')) {
+      setShowHowToPlay(true);
+    }
+  }, []);
+
+  const handleCloseHowToPlay = () => {
+    setShowHowToPlay(false);
+    localStorage.setItem('bnb_seenHowToPlay', '1');
+  };
 
   return (
     <>
@@ -96,7 +108,7 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
         </p>
       </div>
 
-      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
+      {showHowToPlay && <HowToPlayModal onClose={handleCloseHowToPlay} />}
     </>
   );
 }

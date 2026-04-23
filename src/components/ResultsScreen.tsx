@@ -21,12 +21,12 @@ function formatShort(secs: number) {
   return formatTime(secs);
 }
 
-function getSpeedEmoji(secs: number): string {
-  if (secs <= 8)  return '⚡️';
-  if (secs <= 20) return '🏃‍♂️';
-  if (secs <= 45) return '🚣';
-  if (secs <= 90) return '🦥';
-  return '🪨';
+function getTimeSquare(secs: number): string {
+  if (secs <= 10)  return '🟩';
+  if (secs <= 25)  return '🟨';
+  if (secs <= 60)  return '🟧';
+  if (secs <= 120) return '🟥';
+  return '⬛';
 }
 
 function getStreak(): number {
@@ -66,13 +66,9 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
   }, []);
 
   function handleShare() {
-    const colorEmojis = ['🟦', '🟧', '🟥', '🟪', '🟩'];
-    const lines = rounds.map((_, i) => {
-      const speed = getSpeedEmoji(roundTimes[i]);
-      return `${colorEmojis[i]}  ${speed}${speed}${speed}`;
-    });
+    const squares = rounds.map((_, i) => getTimeSquare(roundTimes[i])).join('');
     const id = String(puzzleId).padStart(3, '0');
-    const text = `Bits & Bobs - ${id}\nI found all the bits & bobs in ${formatShort(totalSecs)}\n\n${lines.join('\n')}\n\nbits-n-bobs.io`;
+    const text = `Bits & Bobs ${id}\n${formatShort(totalSecs)}\n\n${squares}\n\nbits-n-bobs.io`;
     if (navigator.share) navigator.share({ text }).catch(() => {});
     else navigator.clipboard.writeText(text);
   }

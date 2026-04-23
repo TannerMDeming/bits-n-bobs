@@ -169,7 +169,7 @@ export default function GameScreen({
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      padding: '16px 20px 56px',
+      padding: '16px 20px 80px',
       background: 'var(--bg)',
       position: 'relative',
     }}>
@@ -226,7 +226,7 @@ export default function GameScreen({
 
       </div>
 
-      <div style={{ flex: 1, maxHeight: 78 }} />
+      <div style={{ flex: 1, maxHeight: 40 }} />
 
       {/* ── Tile Grid ── */}
       <div style={{
@@ -348,7 +348,7 @@ export default function GameScreen({
       {/* ── Clue — sits close below the tray ── */}
       <div style={{
         flexShrink: 0,
-        marginTop: 28,
+        marginTop: 22,
         textAlign: 'center',
         fontFamily: 'var(--font-game)',
         fontWeight: 400,
@@ -360,8 +360,8 @@ export default function GameScreen({
       </div>
 
       {/* ── Skip arrows + Progress Pills — pinned above bottom ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginTop: 'auto' }}>
-        {/* Left chevron */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginTop: 'auto' }}>
+        {/* Left chevron — 44px tap target */}
         <button
           onClick={onSkipBack}
           disabled={!canSkipBack}
@@ -370,19 +370,20 @@ export default function GameScreen({
             cursor: canSkipBack ? 'pointer' : 'default',
             opacity: canSkipBack ? 1 : 0,
             flexShrink: 0,
-            display: 'flex', alignItems: 'center',
+            width: 44, height: 44,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
           <img
             src={chevronUrl}
             alt="previous"
-            style={{ width: 12, height: 16, transform: 'scaleX(-1)', opacity: 0.45 }}
+            style={{ width: 16, height: 22, transform: 'scaleX(-1)', opacity: 0.5 }}
             draggable={false}
           />
         </button>
 
         {/* Pills */}
-        <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+        <div style={{ display: 'flex', gap: 6, flex: 1 }}>
           {puzzle.rounds.map((_, i) => {
             const isCompleted = completedRounds.has(i);
             const isSkipped = skippedRounds.has(i);
@@ -396,7 +397,7 @@ export default function GameScreen({
               <div
                 key={i}
                 style={{
-                  height: 16, flex: 1, borderRadius: 100,
+                  height: 18, flex: 1, borderRadius: 100,
                   background: bg, opacity,
                   transition: 'background 0.3s ease, opacity 0.3s ease',
                 }}
@@ -405,7 +406,7 @@ export default function GameScreen({
           })}
         </div>
 
-        {/* Right chevron */}
+        {/* Right chevron — 44px tap target */}
         <button
           onClick={onSkipForward}
           disabled={!canSkipForward}
@@ -414,13 +415,14 @@ export default function GameScreen({
             cursor: canSkipForward ? 'pointer' : 'default',
             opacity: canSkipForward ? 1 : 0,
             flexShrink: 0,
-            display: 'flex', alignItems: 'center',
+            width: 44, height: 44,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
           <img
             src={chevronUrl}
             alt="next"
-            style={{ width: 12, height: 16, opacity: 0.45 }}
+            style={{ width: 16, height: 22, opacity: 0.5 }}
             draggable={false}
           />
         </button>
