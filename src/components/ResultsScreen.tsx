@@ -60,10 +60,10 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
   }, []);
 
   function handleShare() {
-    const maxT = Math.max(...roundTimes, 1);
+    // 1 square per 5s, min 1, max 5 — absolute scale, not relative
     const lines = rounds.map((_, i) => {
-      const count = Math.max(1, Math.round((roundTimes[i] / maxT) * 5));
-      return Array(count).fill(SHARE_SQUARES[i]).join(' ');
+      const count = Math.min(5, Math.max(1, Math.ceil(roundTimes[i] / 5)));
+      return Array(count).fill(SHARE_SQUARES[i]).join('');
     });
     const id = String(puzzleId).padStart(3, '0');
     const text = `Bits & Bobs - ${id}\nI found all the bits & bobs in ${formatShort(totalSecs)}\n\n${lines.join('\n')}\n\nbits-n-bobs.io`;
