@@ -274,6 +274,15 @@
     ],
     "rounds": [
       {
+        "answer": "blast",
+        "tiles": [
+          "bl",
+          "a",
+          "st"
+        ],
+        "clue": "from the past"
+      },
+      {
         "answer": "portable",
         "tiles": [
           "port",
@@ -281,33 +290,7 @@
           "bl",
           "e"
         ],
-        "clue": "temp"
-      },
-      {
-        "answer": "blast",
-        "tiles": [
-          "bl",
-          "a",
-          "st"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "blue",
-        "tiles": [
-          "bl",
-          "u",
-          "e"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "block",
-        "tiles": [
-          "bl",
-          "ock"
-        ],
-        "clue": "temp"
+        "clue": "telephone, computer, speaker"
       },
       {
         "answer": "trust",
@@ -316,7 +299,24 @@
           "u",
           "st"
         ],
-        "clue": "temp"
+        "clue": "what big tech can't build"
+      },
+      {
+        "answer": "block",
+        "tiles": [
+          "bl",
+          "ock"
+        ],
+        "clue": "your ex's number? (add ed)"
+      },
+      {
+        "answer": "blue",
+        "tiles": [
+          "bl",
+          "u",
+          "e"
+        ],
+        "clue": "common quality of ocean and sky"
       }
     ]
   }
