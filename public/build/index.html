@@ -403,8 +403,16 @@ body {
 .plan-word {
   font-family: var(--font-game);
   font-weight: 700; font-size: 15px;
-  min-width: 90px; color: var(--fg);
+  min-width: 80px; max-width: 120px;
+  color: var(--fg);
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+  padding: 5px 6px;
+  outline: none;
+  background: transparent;
+  transition: border-color 0.15s;
 }
+.plan-word:focus { border-color: var(--fg); background: var(--bg); }
 .plan-clue {
   flex: 1;
   border: 1.5px solid var(--border);
@@ -580,6 +588,13 @@ body {
     <div class="word-list" id="wordList">
       <div class="empty-state">Generate a tile set first</div>
     </div>
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <input type="text" id="customWordInput" placeholder="Check a word…"
+        style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-family:var(--font-game);font-size:14px;font-weight:700;background:var(--bg-card);color:var(--fg);outline:none"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
+      <button class="btn btn-ghost btn-sm" id="customWordBtn">Add ★</button>
+    </div>
+    <div id="customWordFeedback" style="font-size:12px;margin-top:5px;color:var(--muted)"></div>
   </div>
 
   <!-- Puzzle Plan -->
@@ -1243,20 +1258,33 @@ function renderTip() {
 function renderPlan() {
   const plan = document.getElementById('puzzlePlan');
   if (!starredWords.length) { plan.innerHTML = '<div class="plan-empty">No words starred yet</div>'; return; }
-  // Save existing clue values before re-render
+  // Save existing clue values by index (survives word rename)
   const savedClues = {};
-  document.querySelectorAll('.plan-clue').forEach(el => { savedClues[el.dataset.word] = el.value; });
+  document.querySelectorAll('.plan-clue').forEach(el => { savedClues[el.dataset.idx] = el.value; });
 
   plan.innerHTML = '';
   starredWords.forEach((word, i) => {
     const slot = document.createElement('div');
     slot.className = 'plan-slot';
     const num = document.createElement('span'); num.className = 'plan-num'; num.textContent = i + 1;
-    const wordEl = document.createElement('span'); wordEl.className = 'plan-word'; wordEl.textContent = word;
+    const wordEl = document.createElement('input');
+    wordEl.className = 'plan-word';
+    wordEl.value = word;
+    wordEl.setAttribute('autocomplete','off'); wordEl.setAttribute('autocorrect','off');
+    wordEl.setAttribute('autocapitalize','none'); wordEl.setAttribute('spellcheck','false');
+    wordEl.addEventListener('change', () => {
+      const newWord = wordEl.value.trim().toLowerCase();
+      if (!newWord) { wordEl.value = word; return; }
+      savedClues[newWord] = savedClues[word] || '';
+      starredWords[i] = newWord;
+      renderPlan();
+    });
+    wordEl.addEventListener('keydown', e => { if (e.key === 'Enter') wordEl.blur(); });
     const clue = document.createElement('input');
     clue.className = 'plan-clue'; clue.placeholder = 'Write your clue…';
     clue.dataset.word = word;
-    if (savedClues[word]) clue.value = savedClues[word];
+    clue.dataset.idx = i;
+    if (savedClues[i]) clue.value = savedClues[i];
     const actions = document.createElement('div'); actions.className = 'plan-actions';
     const up = document.createElement('button'); up.className = 'plan-arrow'; up.textContent = '▲';
     up.disabled = i === 0;
@@ -1293,6 +1321,63 @@ function resetPlan() {
 
 document.getElementById('clearPlanBtn').addEventListener('click', () => {
   starredWords = []; renderWords(); renderPlan();
+});
+
+// ─── CUSTOM WORD ─────────────────────────────────────────────────────────────
+function tryAddCustomWord() {
+  const input = document.getElementById('customWordInput');
+  const feedback = document.getElementById('customWordFeedback');
+  const word = input.value.trim().toLowerCase();
+  if (!word) return;
+  if (!currentTiles.length) { feedback.textContent = 'Generate a tile set first.'; return; }
+  const decomp = decomposeFromVocab(word);
+  if (!decomp) {
+    // Try to build it directly from current tile texts (user may have custom tiles)
+    const tileCopy = [...currentTiles];
+    const used = [];
+    let remaining = word;
+    // greedy longest-match from current tiles
+    let matched = true;
+    while (remaining.length > 0 && matched) {
+      matched = false;
+      const available = tileCopy.filter((_, i) => !used.includes(i));
+      const sorted = available.sort((a, b) => b.tile.length - a.tile.length);
+      for (const t of sorted) {
+        if (remaining.startsWith(t.tile)) {
+          used.push(tileCopy.indexOf(t));
+          remaining = remaining.slice(t.tile.length);
+          matched = true;
+          break;
+        }
+      }
+    }
+    if (remaining.length > 0) {
+      feedback.style.color = '#c0392b';
+      feedback.textContent = `"${word}" can't be built from these tiles.`;
+      return;
+    }
+  }
+  if (starredWords.includes(word)) {
+    feedback.style.color = 'var(--muted)';
+    feedback.textContent = `"${word}" is already in the plan.`;
+    return;
+  }
+  if (starredWords.length >= 5) {
+    feedback.style.color = '#c0392b';
+    feedback.textContent = 'Plan is full (5 words max).';
+    return;
+  }
+  starredWords.push(word);
+  input.value = '';
+  feedback.style.color = '#1A7A46';
+  feedback.textContent = `"${word}" added to plan ✓`;
+  renderWords(); renderPlan();
+  setTimeout(() => { feedback.textContent = ''; }, 2500);
+}
+
+document.getElementById('customWordBtn').addEventListener('click', tryAddCustomWord);
+document.getElementById('customWordInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') tryAddCustomWord();
 });
 
 // ─── WORD LIST CONTROLS ───────────────────────────────────────────────────────
