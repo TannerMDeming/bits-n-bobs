@@ -311,10 +311,11 @@
         "clue": "common quality of ocean and sky"
       },
       {
-        "answer": "block",
+        "answer": "blocked",
         "tiles": [
           "bl",
-          "ock"
+          "ock",
+          "ed"
         ],
         "clue": "your ex's number?"
       }
