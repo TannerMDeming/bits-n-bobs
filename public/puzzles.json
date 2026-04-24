@@ -320,5 +320,71 @@
         "clue": "your ex's number?"
       }
     ]
+  },
+  {
+    "id": 6,
+    "date": "2026-04-27",
+    "tileset": [
+      "e",
+      "ly",
+      "cred",
+      "pro",
+      "th",
+      "man",
+      "st",
+      "mot",
+      "ad",
+      "poly",
+      "re",
+      "br"
+    ],
+    "rounds": [
+      {
+        "answer": "breadth",
+        "tiles": [
+          "br",
+          "e",
+          "ad",
+          "th"
+        ],
+        "clue": "a good range"
+      },
+      {
+        "answer": "thread",
+        "tiles": [
+          "th",
+          "re",
+          "ad"
+        ],
+        "clue": "contains many replies"
+      },
+      {
+        "answer": "remotely",
+        "tiles": [
+          "re",
+          "mot",
+          "e",
+          "ly"
+        ],
+        "clue": "how to work at a coffee shop"
+      },
+      {
+        "answer": "three",
+        "tiles": [
+          "th",
+          "re",
+          "e"
+        ],
+        "clue": "the time for charm"
+      },
+      {
+        "answer": "read",
+        "tiles": [
+          "re",
+          "ad"
+        ],
+        "clue": "how you do this, right now."
+      }
+    ]
   }
 ]
