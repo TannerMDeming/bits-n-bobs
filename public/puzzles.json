@@ -268,7 +268,7 @@
       "ock",
       "ry",
       "no",
-      "ery",
+      "ed",
       "u",
       "st"
     ],
@@ -302,14 +302,6 @@
         "clue": "what big tech can't build"
       },
       {
-        "answer": "block",
-        "tiles": [
-          "bl",
-          "ock"
-        ],
-        "clue": "your ex's number? (add ed)"
-      },
-      {
         "answer": "blue",
         "tiles": [
           "bl",
@@ -317,6 +309,14 @@
           "e"
         ],
         "clue": "common quality of ocean and sky"
+      },
+      {
+        "answer": "block",
+        "tiles": [
+          "bl",
+          "ock"
+        ],
+        "clue": "your ex's number?"
       }
     ]
   }
