@@ -790,6 +790,7 @@ let currentWords = [];
 let lockedTiles = new Set();
 let tileSetLocked = false;  // global lock
 let starredWords = [];
+let planClues = {}; // word → clue text, persists across re-renders and reorders
 let minWordLen = 0;
 let wordsVisible = false;
 let editingId = null;    // null = new puzzle, number = editing existing
@@ -934,16 +935,11 @@ function loadExistingPuzzle(id) {
   renderTiles();
   renderWordCount();
   renderTip();
-  // Load plan
+  // Load plan + clues into state
   starredWords = p.rounds.map(r => r.answer);
-  // Restore clues
+  planClues = {};
+  p.rounds.forEach(r => { planClues[r.answer] = r.clue; });
   renderPlan();
-  setTimeout(() => {
-    p.rounds.forEach((r, i) => {
-      const input = document.querySelector(`.plan-clue[data-word="${r.answer}"]`);
-      if (input) input.value = r.clue;
-    });
-  }, 50);
   setEditMode(true);
   document.getElementById('testBtn').disabled = false;
 }
@@ -1256,17 +1252,18 @@ function renderTip() {
 }
 
 function renderPlan() {
+  // Flush any typed-but-not-blurred clues into planClues before re-render
+  document.querySelectorAll('.plan-clue').forEach(el => { planClues[el.dataset.word] = el.value; });
+
   const plan = document.getElementById('puzzlePlan');
   if (!starredWords.length) { plan.innerHTML = '<div class="plan-empty">No words starred yet</div>'; return; }
-  // Save existing clue values by index (survives word rename)
-  const savedClues = {};
-  document.querySelectorAll('.plan-clue').forEach(el => { savedClues[el.dataset.idx] = el.value; });
 
   plan.innerHTML = '';
   starredWords.forEach((word, i) => {
     const slot = document.createElement('div');
     slot.className = 'plan-slot';
     const num = document.createElement('span'); num.className = 'plan-num'; num.textContent = i + 1;
+
     const wordEl = document.createElement('input');
     wordEl.className = 'plan-word';
     wordEl.value = word;
@@ -1275,24 +1272,39 @@ function renderPlan() {
     wordEl.addEventListener('change', () => {
       const newWord = wordEl.value.trim().toLowerCase();
       if (!newWord) { wordEl.value = word; return; }
-      savedClues[newWord] = savedClues[word] || '';
+      // Move clue to new key
+      planClues[newWord] = planClues[word] || '';
+      delete planClues[word];
       starredWords[i] = newWord;
       renderPlan();
     });
     wordEl.addEventListener('keydown', e => { if (e.key === 'Enter') wordEl.blur(); });
+
     const clue = document.createElement('input');
     clue.className = 'plan-clue'; clue.placeholder = 'Write your clue…';
     clue.dataset.word = word;
-    clue.dataset.idx = i;
-    if (savedClues[i]) clue.value = savedClues[i];
+    clue.value = planClues[word] || '';
+    // Keep planClues live as user types (no blur required)
+    clue.addEventListener('input', () => { planClues[word] = clue.value; });
+
     const actions = document.createElement('div'); actions.className = 'plan-actions';
     const up = document.createElement('button'); up.className = 'plan-arrow'; up.textContent = '▲';
     up.disabled = i === 0;
-    up.addEventListener('click', () => { [starredWords[i-1], starredWords[i]] = [starredWords[i], starredWords[i-1]]; renderPlan(); });
+    up.addEventListener('click', () => {
+      // Flush before reorder
+      document.querySelectorAll('.plan-clue').forEach(el => { planClues[el.dataset.word] = el.value; });
+      [starredWords[i-1], starredWords[i]] = [starredWords[i], starredWords[i-1]];
+      renderPlan();
+    });
     const down = document.createElement('button'); down.className = 'plan-arrow'; down.textContent = '▼';
     down.disabled = i === starredWords.length - 1;
-    down.addEventListener('click', () => { [starredWords[i+1], starredWords[i]] = [starredWords[i], starredWords[i+1]]; renderPlan(); });
+    down.addEventListener('click', () => {
+      document.querySelectorAll('.plan-clue').forEach(el => { planClues[el.dataset.word] = el.value; });
+      [starredWords[i+1], starredWords[i]] = [starredWords[i], starredWords[i+1]];
+      renderPlan();
+    });
     actions.append(up, down);
+
     const remove = document.createElement('button'); remove.className = 'plan-remove'; remove.textContent = '×';
     remove.addEventListener('click', () => toggleStar(word));
     slot.append(num, wordEl, clue, actions, remove);
@@ -1312,7 +1324,7 @@ function toggleStar(word) {
 }
 
 function resetPlan() {
-  starredWords = [];
+  starredWords = []; planClues = {};
   currentTiles = []; currentWords = [];
   lockedTiles = new Set(); tileSetLocked = false;
   updateLockToggle();
@@ -1320,7 +1332,7 @@ function resetPlan() {
 }
 
 document.getElementById('clearPlanBtn').addEventListener('click', () => {
-  starredWords = []; renderWords(); renderPlan();
+  starredWords = []; planClues = {}; renderWords(); renderPlan();
 });
 
 // ─── CUSTOM WORD ─────────────────────────────────────────────────────────────
@@ -1407,9 +1419,10 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
 
   // Build rounds using word decomposition against current tile set
   const tiles = currentTiles.map(t => t.tile);
+  // Flush any live DOM edits into planClues before reading
+  document.querySelectorAll('.plan-clue').forEach(el => { planClues[el.dataset.word] = el.value; });
   const rounds = starredWords.map(word => {
-    const clueEl = document.querySelector(`.plan-clue[data-word="${word}"]`);
-    const clue = clueEl ? clueEl.value.trim() : '';
+    const clue = (planClues[word] || '').trim();
     const decomp = decomposeWord(word, tiles);
     return { answer: word, tiles: decomp || [], clue };
   });
