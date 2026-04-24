@@ -1057,7 +1057,7 @@ async function runGenerate(mode = 'normal') {
     result = generateSplit(locked);
   } else {
     const attempts = mode === 'wild' ? 60000 : 15000;
-    result = generateSet(locked, 8, attempts);
+    result = generateSet(locked, attempts);
   }
 
   allBtns.forEach(b => b.disabled = false);
