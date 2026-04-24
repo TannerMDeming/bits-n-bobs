@@ -2,25 +2,193 @@
   {
     "id": 1,
     "date": "2026-04-21",
-    "tileset": ["vis", "st", "log", "able", "co", "ness", "e", "sion", "i", "cal", "it", "al"],
+    "tileset": [
+      "vis",
+      "st",
+      "log",
+      "able",
+      "co",
+      "ness",
+      "e",
+      "sion",
+      "i",
+      "cal",
+      "it",
+      "al"
+    ],
     "rounds": [
-      { "answer": "visit", "tiles": ["vis", "it"], "clue": "Come through" },
-      { "answer": "coal", "tiles": ["co", "al"], "clue": "Sinner's present" },
-      { "answer": "ecological", "tiles": ["e", "co", "log", "i", "cal"], "clue": "Deductive, environmentally" },
-      { "answer": "steal", "tiles": ["st", "e", "al"], "clue": "A criminal baseball move" },
-      { "answer": "stale", "tiles": ["st", "al", "e"], "clue": "A baker's crime?" }
+      {
+        "answer": "visit",
+        "tiles": [
+          "vis",
+          "it"
+        ],
+        "clue": "Come through"
+      },
+      {
+        "answer": "coal",
+        "tiles": [
+          "co",
+          "al"
+        ],
+        "clue": "Sinner's present"
+      },
+      {
+        "answer": "ecological",
+        "tiles": [
+          "e",
+          "co",
+          "log",
+          "i",
+          "cal"
+        ],
+        "clue": "Deductive, environmentally"
+      },
+      {
+        "answer": "steal",
+        "tiles": [
+          "st",
+          "e",
+          "al"
+        ],
+        "clue": "A criminal baseball move"
+      },
+      {
+        "answer": "stale",
+        "tiles": [
+          "st",
+          "al",
+          "e"
+        ],
+        "clue": "A baker's crime?"
+      }
     ]
   },
   {
     "id": 2,
     "date": "2026-04-23",
-    "tileset": ["al", "vent", "ment", "mo", "tion", "cal", "est", "de", "lo", "oc", "e", "ful"],
+    "tileset": [
+      "al",
+      "vent",
+      "ment",
+      "mo",
+      "tion",
+      "cal",
+      "est",
+      "de",
+      "lo",
+      "oc",
+      "e",
+      "ful"
+    ],
     "rounds": [
-      { "answer": "local", "tiles": ["lo", "cal"], "clue": "Farmer's market produce" },
-      { "answer": "deal", "tiles": ["de", "al"], "clue": "In poker, in real estate" },
-      { "answer": "emotional", "tiles": ["e", "mo", "tion", "al"], "clue": "A type of rollercoaster" },
-      { "answer": "event", "tiles": ["e", "vent"], "clue": "From cultural to corporate" },
-      { "answer": "mode", "tiles": ["mo", "de"], "clue": "Easy, regular, hard" }
+      {
+        "answer": "local",
+        "tiles": [
+          "lo",
+          "cal"
+        ],
+        "clue": "Farmer's market produce"
+      },
+      {
+        "answer": "deal",
+        "tiles": [
+          "de",
+          "al"
+        ],
+        "clue": "In poker, in real estate"
+      },
+      {
+        "answer": "emotional",
+        "tiles": [
+          "e",
+          "mo",
+          "tion",
+          "al"
+        ],
+        "clue": "A type of rollercoaster"
+      },
+      {
+        "answer": "event",
+        "tiles": [
+          "e",
+          "vent"
+        ],
+        "clue": "From cultural to corporate"
+      },
+      {
+        "answer": "mode",
+        "tiles": [
+          "mo",
+          "de"
+        ],
+        "clue": "Easy, regular, hard"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "date": "2026-04-24",
+    "tileset": [
+      "a",
+      "tion",
+      "nov",
+      "sp",
+      "be",
+      "ch",
+      "re",
+      "br",
+      "arm",
+      "gl",
+      "y",
+      "form"
+    ],
+    "rounds": [
+      {
+        "answer": "glare",
+        "tiles": [
+          "gl",
+          "a",
+          "re"
+        ],
+        "clue": "sunlight's screen curse"
+      },
+      {
+        "answer": "charm",
+        "tiles": [
+          "ch",
+          "arm"
+        ],
+        "clue": "witch's blessing"
+      },
+      {
+        "answer": "renovation",
+        "tiles": [
+          "re",
+          "nov",
+          "a",
+          "tion"
+        ],
+        "clue": "a flipper's weekend plans, forever"
+      },
+      {
+        "answer": "spare",
+        "tiles": [
+          "sp",
+          "a",
+          "re"
+        ],
+        "clue": "a car's insurance"
+      },
+      {
+        "answer": "beach",
+        "tiles": [
+          "be",
+          "a",
+          "ch"
+        ],
+        "clue": "where a book snob reads \"that book\""
+      }
     ]
   }
 ]
