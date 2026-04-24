@@ -254,5 +254,70 @@
         "clue": "vacancy for mary & joseph"
       }
     ]
+  },
+  {
+    "id": 5,
+    "date": "2026-04-26",
+    "tileset": [
+      "a",
+      "ism",
+      "port",
+      "tr",
+      "e",
+      "bl",
+      "ock",
+      "ry",
+      "no",
+      "ery",
+      "u",
+      "st"
+    ],
+    "rounds": [
+      {
+        "answer": "portable",
+        "tiles": [
+          "port",
+          "a",
+          "bl",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "blast",
+        "tiles": [
+          "bl",
+          "a",
+          "st"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "blue",
+        "tiles": [
+          "bl",
+          "u",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "block",
+        "tiles": [
+          "bl",
+          "ock"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "trust",
+        "tiles": [
+          "tr",
+          "u",
+          "st"
+        ],
+        "clue": "temp"
+      }
+    ]
   }
 ]
