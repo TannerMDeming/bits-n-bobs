@@ -355,7 +355,7 @@ export default function GameScreen({
         fontSize: 22,
         lineHeight: 1.35,
         color: '#111',
-        maxWidth: 220,
+        maxWidth: 190,
         alignSelf: 'center',
       }}>
         {round.clue}
