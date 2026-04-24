@@ -190,5 +190,69 @@
         "clue": "where a book snob reads \"that book\""
       }
     ]
+  },
+  {
+    "id": 4,
+    "date": "2026-04-25",
+    "tileset": [
+      "e",
+      "or",
+      "log",
+      "re",
+      "bl",
+      "a",
+      "pre",
+      "dict",
+      "ell",
+      "st",
+      "ous",
+      "u"
+    ],
+    "rounds": [
+      {
+        "answer": "predict",
+        "tiles": [
+          "pre",
+          "dict"
+        ],
+        "clue": "you see this one coming?"
+      },
+      {
+        "answer": "rest",
+        "tiles": [
+          "re",
+          "st"
+        ],
+        "clue": "evades the wicked"
+      },
+      {
+        "answer": "store",
+        "tiles": [
+          "st",
+          "or",
+          "e"
+        ],
+        "clue": "accepts returns, often"
+      },
+      {
+        "answer": "stare",
+        "tiles": [
+          "st",
+          "a",
+          "re"
+        ],
+        "clue": "hard to return, sometimes"
+      },
+      {
+        "answer": "stable",
+        "tiles": [
+          "st",
+          "a",
+          "bl",
+          "e"
+        ],
+        "clue": "vacancy for mary & joseph"
+      }
+    ]
   }
 ]
