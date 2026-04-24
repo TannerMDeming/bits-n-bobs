@@ -700,7 +700,7 @@ function decomposeFromVocab(word) {
   return best ? best.map(i => ALL_TILES[i]) : null;
 }
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function generateSet(lockedTiles = [], maxAttempts = 15000) {
+function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowed = 2) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const set = [...lockedTiles];
     const usedTiles = new Set(set.map(t => t.tile));
@@ -737,9 +737,9 @@ function generateSet(lockedTiles = [], maxAttempts = 15000) {
       const suffixUsage = {};
       top4.forEach(w => w.decomp.filter(t => suffixSet.has(t)).forEach(t => { suffixUsage[t] = (suffixUsage[t] || 0) + 1; }));
       const maxSuffixReuse = Math.max(0, ...Object.values(suffixUsage));
-      if (maxRootReuse <= 1 && maxSuffixReuse <= 2) return { tiles: set, words };
-      if (attempt >= 14000) return { tiles: set, words };
-      if (attempt >= 12000 && maxRootReuse <= 1) return { tiles: set, words };
+      if (maxRootReuse <= 1 && maxSuffixReuse <= maxSuffixReuseAllowed) return { tiles: set, words };
+      // Partial escape: relax suffix check but NEVER root diversity
+      if (attempt >= maxAttempts * 0.80 && maxRootReuse <= 1) return { tiles: set, words };
     }
   }
   return null;
@@ -1056,8 +1056,9 @@ async function runGenerate(mode = 'normal') {
   if (mode === 'split') {
     result = generateSplit(locked);
   } else {
-    const attempts = mode === 'wild' ? 60000 : 15000;
-    result = generateSet(locked, attempts);
+    const attempts = mode === 'wild' ? 60000 : 30000;
+    const maxSuffixReuse = mode === 'wild' ? 1 : 2;
+    result = generateSet(locked, attempts, maxSuffixReuse);
   }
 
   allBtns.forEach(b => b.disabled = false);

@@ -760,8 +760,8 @@ function generateSet(lockedTiles = [], minWords = 8, maxAttempts = 15000) {
       if (diverse) return { tiles: set, words };
 
       // After 12000 attempts relax suffix cap; after 14000 accept anything valid
-      if (attempt >= 14000) return { tiles: set, words };
-      if (attempt >= 12000 && maxRootReuse <= 1) return { tiles: set, words };
+      // Partial escape: relax suffix check but NEVER root diversity
+      if (attempt >= maxAttempts * 0.80 && maxRootReuse <= 1) return { tiles: set, words };
     }
   }
   return null;
@@ -1020,7 +1020,7 @@ async function runGenerate(mode = 'normal') {
   if (mode === 'split') {
     result = generateSplit(locked);
   } else {
-    const attempts = mode === 'wild' ? 60000 : 15000;
+    const attempts = mode === 'wild' ? 60000 : 30000;
     result = generateSet(locked, 8, attempts);
   }
 
