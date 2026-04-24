@@ -358,7 +358,7 @@ export default function GameScreen({
         maxWidth: 280,
         alignSelf: 'center',
       }}>
-        {round.clue.split('\n').map((line, i, arr) => (
+        {round.clue.split(/\\n|\n/).map((line, i, arr) => (
           <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
         ))}
       </div>
