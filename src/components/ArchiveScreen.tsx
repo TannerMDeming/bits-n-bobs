@@ -2,16 +2,14 @@ import { useEffect, useState } from 'react';
 import type { Puzzle } from '../types';
 import logoUrl from '../assets/logo.png';
 import lockUrl from '../assets/lock.png';
+import checkUrl from '../assets/check.png';
 
 interface Props {
   onPlay: (puzzle: Puzzle) => void;
   onBack: () => void;
-  // ID of today's puzzle so we can skip it (it's played via the main Play button)
-  todayId?: number;
 }
 
 function getTodayStr() {
-  // Same -5h offset used by the game (day rolls at 10pm PDT)
   return new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
@@ -55,12 +53,7 @@ export default function ArchiveScreen({ onPlay, onBack }: Props) {
 
       {/* Logo */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28, flexShrink: 0 }}>
-        <img
-          src={logoUrl}
-          alt="Bits & Bobs"
-          style={{ width: 200 }}
-          draggable={false}
-        />
+        <img src={logoUrl} alt="Bits & Bobs" style={{ width: 200 }} draggable={false} />
       </div>
 
       {/* Puzzle grid */}
@@ -75,6 +68,11 @@ export default function ArchiveScreen({ onPlay, onBack }: Props) {
           const unlocked = p.date <= today;
           const isDone = completed.has(p.id);
 
+          // Style variants
+          const bg       = !unlocked ? '#C8C8C8' : isDone ? '#F0FAF4' : '#FFF';
+          const border   = !unlocked ? '#ADADAD' : isDone ? '#1A7A46' : '#111';
+          const cursor   = unlocked ? 'pointer' : 'default';
+
           return (
             <button
               key={p.id}
@@ -82,33 +80,41 @@ export default function ArchiveScreen({ onPlay, onBack }: Props) {
               onClick={() => unlocked && onPlay(p)}
               style={{
                 aspectRatio: '1',
-                border: `2.5px solid ${unlocked ? '#111' : '#DADADA'}`,
+                border: `2.5px solid ${border}`,
                 borderRadius: 8,
-                background: isDone ? '#E8F5EE' : unlocked ? '#FFF' : '#EBEBEB',
+                background: bg,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: unlocked ? 'pointer' : 'default',
+                cursor,
                 padding: 0,
+                position: 'relative',
                 transition: 'background 0.15s ease',
               }}
             >
-              {unlocked ? (
+              {!unlocked ? (
+                <img
+                  src={lockUrl}
+                  alt="locked"
+                  style={{ width: 22, opacity: 0.55 }}
+                  draggable={false}
+                />
+              ) : isDone ? (
+                <img
+                  src={checkUrl}
+                  alt="completed"
+                  style={{ width: 26 }}
+                  draggable={false}
+                />
+              ) : (
                 <span style={{
                   fontFamily: 'var(--font-ui)',
                   fontWeight: 700,
                   fontSize: 17,
-                  color: isDone ? '#1A7A46' : '#111',
+                  color: '#111',
                 }}>
-                  {isDone ? '✓' : p.id}
+                  {p.id}
                 </span>
-              ) : (
-                <img
-                  src={lockUrl}
-                  alt="locked"
-                  style={{ width: 16, opacity: 0.35 }}
-                  draggable={false}
-                />
               )}
             </button>
           );
