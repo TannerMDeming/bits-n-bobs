@@ -439,8 +439,10 @@ h1 span { font-weight: 400; font-size: 16px; opacity: 0.8; margin-left: 8px; }
   <div class="seed-feedback" id="seedFeedback"></div>
 
   <div class="controls">
-    <button class="btn-primary" id="generateBtn">Generate Set</button>
-    <button class="btn-ghost" id="copySetBtn">Copy Tiles</button>
+    <button class="btn-primary" id="generateBtn">Generate</button>
+    <button class="btn-ghost" id="wildBtn" title="Runs longer to find unusual combinations">🎲 Wild</button>
+    <button class="btn-ghost" id="splitBtn" title="Finds sets with two distinct word families">✂️ Split</button>
+    <button class="btn-ghost" id="copySetBtn">Copy</button>
     <div class="word-count" id="wordCount">
       —
       <span>words found</span>
@@ -463,7 +465,7 @@ h1 span { font-weight: 400; font-size: 16px; opacity: 0.8; margin-left: 8px; }
 
   <div class="generating" id="generating">
     <div class="spinner"></div>
-    Searching for a good set…
+    <span id="generatingMsg">Searching for a good set…</span>
   </div>
 
   <p class="tip" id="tipText"></p>
@@ -506,9 +508,9 @@ h1 span { font-weight: 400; font-size: 16px; opacity: 0.8; margin-left: 8px; }
 // ─── VOCABULARY ─────────────────────────────────────────────────────────────
 const VOCAB = {
   vowels:   ['a','e','i','o','u','y'],
-  prefixes: ['re','un','in','bi','co','de','ex','mis','pre','pro','out','be','en','con','com','per','uni','dis','im','over','ab','ob','ad','il','ir','em','sur'],
-  suffixes: ['er','or','al','ly','ic','ed','en','ful','less','ness','ment','tion','sion','able','ive','ous','ary','ify','ize','ish','ant','ing','ion','ate','ance','ence','ent','it','ce'],
-  roots:    ['log','bio','geo','eco','tech','phon','form','port','vis','cap','fin','gen','dict','cal','sol','nov','man','mot','loc','lor','ver','act','ject','mit','vent','viv','just','fa','id'],
+  prefixes: ['re','un','in','bi','co','de','ex','mis','pre','pro','out','be','en','con','com','per','uni','dis','im','over','ab','ob','ad','il','ir','em','sur','sub','super','trans','inter','anti','auto','semi','non','poly','hyper','micro','macro','ultra','post','fore','mid','mono','multi'],
+  suffixes: ['er','or','al','ly','ic','ed','en','ful','less','ness','ment','tion','sion','able','ive','ous','ary','ify','ize','ish','ant','ing','ion','ate','ance','ence','ent','it','ce','th','ry','ty','ory','ery','est','ism','ist','ity','ship','hood','dom','ward','wise'],
+  roots:    ['log','bio','geo','eco','tech','phon','form','port','vis','cap','fin','gen','dict','cal','sol','nov','man','mot','loc','lor','ver','act','ject','mit','vent','viv','just','fa','id','nat','mor','corp','rupt','struct','grad','cred','duc','flu','graph','hab','mem','min','mob','mut','nom','ped','pel','pend','pos','pot','reg','sent','sequ','sign','spec','spir','stat','tang','temp','val','voc','vol'],
   onsets:   ['bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','sc','sk','sp','st','sw','tr','ch','sh','th'],
   cv:       ['po','no','mo','lo','fo','ro','so','do'],
   bodies:   ['app','ack','ail','all','ark','arm','ast','ell','end','est','ick','ill','ock','old','ong','ool','ork','orn','ust','ump','ain','ight','ound','ake']
@@ -572,7 +574,55 @@ generally generalize generously generosity generously
 visually visually visibility visually
 resolution resolute resolutely resoluteness
 innovation innovate innovatively renovate renovation
-desolation consolation isolation resolution dissolution absolution`.split(/\s+/).filter(w => w.length >= 4);
+desolation consolation isolation resolution dissolution absolution
+nature nation natural natal innate native nativity supernatural nationality
+moral morale mortal immortal mortality morose moreover
+corpus corporate corpse corporal incorporate
+erupt corrupt abrupt disrupt interrupt rupture
+structure construct instruct destruct obstruct restructure
+grade gradient gradual degrade upgrade graduate
+credit credible incredible accredit credential discredit
+duct conduct produce reduce educate induce deduce
+fluid fluent influence affluent fluctuate flush
+graphic paragraph photograph autograph biography geography
+habit habitat inhabit rehabilitate cohabit
+memory memorize memorial memoir
+minute minimal minimize minimum minor minority
+mobile mobilize automobile immobile mobility
+mute mutual mutate mutation commute permute
+nominal nominate economy astronomy
+pedal pedestrian expedition impede
+compel repel dispel propel impel expel
+depend suspend expend append independent
+position compose deposit expose impose propose suppose dispose oppose
+potent potential despot
+region regulate regular irregular regal regime
+sentence present consent resent dissent absent assent
+sequence sequel subsequent consequence
+signal design resign assign significant
+spirit inspire aspire expire conspire
+state static status station statistic estate statute
+tangent tangible intangible contact intact
+tempo temporary temper temperature contemplate contemporary
+valid evaluate valor prevail available validity
+vocal vocation advocate vocabulary invoke provoke revoke evoke
+volume volunteer revolt evolve involve revolve
+subway subtext subject subtract subdue sublime subplot
+superb supreme surplus surpass supervise superstar
+transform transcend transfer transmit transit translate transact
+interact intervene interview interrupt intersect interval interface
+antidote antifreeze antivirus autocrat automatic autonomy automate
+semifinal semicolon nonstop nonprofit nonverbal nonsense
+forecast foresight forefront foreground foresee
+midway midnight midterm midfield midpoint
+monologue monotone monograph monochrome
+multiply multitask multiverse
+warmth growth depth length strength breadth health wealth stealth
+friendship partnership leadership ownership scholarship championship
+falsehood neighborhood brotherhood likelihood childhood adulthood
+freedom kingdom wisdom boredom
+backward forward inward outward upward downward toward
+likewise otherwise clockwise lengthwise`.split(/\s+/).filter(w => w.length >= 4);
 
 // deduplicate
 const WORD_SET = [...new Set(WORDS)];
@@ -686,17 +736,107 @@ function generateSet(lockedTiles = [], minWords = 8, maxAttempts = 15000) {
     const longWords = words.filter(w => w.tileCount >= 3).length;
     const veryLongList = words.filter(w => w.tileCount >= 4);
     if (words.length >= minWords && longWords >= 3 && veryLongList.length >= 2) {
-      // Prefer sets where the two 4-tile words use different root tiles
-      const rootSet = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
-      const roots1 = veryLongList[0].decomp.filter(t => rootSet.has(t));
-      const roots2 = veryLongList[1].decomp.filter(t => rootSet.has(t));
-      const sharedRoots = roots1.filter(t => roots2.includes(t)).length;
-      if (sharedRoots === 0) return { tiles: set, words };
-      // After 12000 attempts, accept any set that meets the word/tile counts
-      if (attempt >= 12000) return { tiles: set, words };
+
+      const rootSet   = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
+      const suffixSet = new Set(ALL_TILES.filter(t => t.cat === 'suffixes').map(t => t.tile));
+
+      // ── Root diversity: top-3 long words must each use a different root ──
+      const top3 = veryLongList.slice(0, 3);
+      const rootUsage = {};
+      top3.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => {
+        rootUsage[t] = (rootUsage[t] || 0) + 1;
+      }));
+      const maxRootReuse = Math.max(0, ...Object.values(rootUsage));
+
+      // ── Suffix diversity: no suffix tile in more than 2 of the top-4 words ──
+      const top4 = veryLongList.slice(0, 4);
+      const suffixUsage = {};
+      top4.forEach(w => w.decomp.filter(t => suffixSet.has(t)).forEach(t => {
+        suffixUsage[t] = (suffixUsage[t] || 0) + 1;
+      }));
+      const maxSuffixReuse = Math.max(0, ...Object.values(suffixUsage));
+
+      const diverse = maxRootReuse <= 1 && maxSuffixReuse <= 2;
+      if (diverse) return { tiles: set, words };
+
+      // After 12000 attempts relax suffix cap; after 14000 accept anything valid
+      if (attempt >= 14000) return { tiles: set, words };
+      if (attempt >= 12000 && maxRootReuse <= 1) return { tiles: set, words };
     }
   }
   return null;
+}
+
+// ─── SPLIT SCORING ───────────────────────────────────────────────────────────
+function splitScore(words) {
+  const long = words.filter(w => w.tileCount >= 3);
+  if (long.length < 4) return 0;
+  const rootSet = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
+  const rootFreq = {};
+  long.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => {
+    rootFreq[t] = (rootFreq[t] || 0) + 1;
+  }));
+  const topRoots = Object.entries(rootFreq).sort((a,b) => b[1]-a[1]).slice(0, 2).map(e => e[0]);
+  if (topRoots.length < 2) return 0;
+  const famA = long.filter(w => w.decomp.includes(topRoots[0]));
+  const famB = long.filter(w => w.decomp.includes(topRoots[1]));
+  if (famA.length < 2 || famB.length < 2) return 0;
+  const tilesA = new Set(famA.flatMap(w => w.decomp));
+  const tilesB = new Set(famB.flatMap(w => w.decomp));
+  let unique = 0;
+  tilesA.forEach(t => { if (!tilesB.has(t)) unique++; });
+  tilesB.forEach(t => { if (!tilesA.has(t)) unique++; });
+  return unique;
+}
+
+function generateSplit(lockedTiles = [], maxAttempts = 50000) {
+  let bestResult = null;
+  let bestScore = -1;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const set = [...lockedTiles];
+    const usedTiles = new Set(set.map(t => t.tile));
+    const pool = (cat) => ALL_TILES.filter(t => t.cat === cat && !usedTiles.has(t.tile));
+    function pick(cat) {
+      const p = pool(cat);
+      if (!p.length) return null;
+      const t = pickRandom(p);
+      usedTiles.add(t.tile);
+      set.push(t);
+      return t;
+    }
+    const cats = set.map(t => t.cat);
+    if (!cats.includes('vowels'))   pick('vowels');
+    if (!cats.includes('suffixes')) pick('suffixes');
+    if (set.filter(t => t.cat === 'roots').length < 1) pick('roots');
+    if (set.filter(t => t.cat === 'roots').length < 2) pick('roots');
+    if (!cats.includes('prefixes') && !cats.includes('onsets')) {
+      Math.random() < 0.5 ? pick('prefixes') : pick('onsets');
+    }
+    const weighted = [
+      ...Array(6).fill('roots'),
+      ...Array(3).fill('prefixes'),
+      ...Array(3).fill('suffixes'),
+      ...Array(2).fill('bodies'),
+      'vowels', 'onsets'
+    ];
+    while (set.length < 12) {
+      const cat = pickRandom(weighted);
+      const p = pool(cat);
+      if (!p.length) continue;
+      const t = pickRandom(p);
+      usedTiles.add(t.tile);
+      set.push(t);
+    }
+    const words = findWords(set);
+    if (words.length < 8) continue;
+    const score = splitScore(words);
+    if (score > bestScore) {
+      bestScore = score;
+      bestResult = { tiles: set, words };
+      if (score >= 8 && attempt >= 1000) break;
+    }
+  }
+  return bestResult;
 }
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -841,51 +981,56 @@ function renderTip() {
 }
 
 // ─── ACTIONS ─────────────────────────────────────────────────────────────────
-async function generate() {
-  const btn = document.getElementById('generateBtn');
+async function runGenerate(mode = 'normal') {
+  const allBtns = ['generateBtn','wildBtn','splitBtn'].map(id => document.getElementById(id));
   const genEl = document.getElementById('generating');
-  btn.disabled = true;
+  const msgEl = document.getElementById('generatingMsg');
+  allBtns.forEach(b => b.disabled = true);
   genEl.classList.add('visible');
+  if (mode === 'wild')       msgEl.textContent = '🎲 Running wild — this may take a moment…';
+  else if (mode === 'split') msgEl.textContent = '✂️ Looking for a split set…';
+  else                       msgEl.textContent = 'Searching for a good set…';
 
-  // Run off main thread briefly
   await new Promise(r => setTimeout(r, 10));
 
-  // Seed word: pre-lock tiles required to spell it
   const seedWord = document.getElementById('seedInput').value.trim().toLowerCase();
   let seedTiles = [];
   if (seedWord) {
     seedTiles = decomposeFromVocab(seedWord) || [];
     if (!seedTiles.length) {
       showToast(`"${seedWord}" can't be built from the tile vocabulary`);
-      btn.disabled = false;
+      allBtns.forEach(b => b.disabled = false);
       genEl.classList.remove('visible');
       return;
     }
     if (seedTiles.length > 11) {
       showToast(`"${seedWord}" needs ${seedTiles.length} tiles — too many to fit in a set of 12`);
-      btn.disabled = false;
+      allBtns.forEach(b => b.disabled = false);
       genEl.classList.remove('visible');
       return;
     }
   }
 
-  // Merge seed tiles with any currently locked tiles (seed takes priority)
   const manualLocked = currentTiles.filter((_, i) => lockedTiles.has(i));
   const seedTileKeys = new Set(seedTiles.map(t => t.tile));
   const extraLocked = manualLocked.filter(t => !seedTileKeys.has(t.tile));
   const locked = [...seedTiles, ...extraLocked];
 
-  const result = generateSet(locked);
+  let result;
+  if (mode === 'split') {
+    result = generateSplit(locked);
+  } else {
+    const attempts = mode === 'wild' ? 60000 : 15000;
+    result = generateSet(locked, 8, attempts);
+  }
 
-  btn.disabled = false;
+  allBtns.forEach(b => b.disabled = false);
   genEl.classList.remove('visible');
 
   if (!result) {
-    if (locked.length > 0) {
-      showToast('Couldn\'t find a valid set with those locked tiles. Try unlocking some.');
-    } else {
-      showToast('Generation failed — try again!');
-    }
+    showToast(locked.length > 0
+      ? 'Couldn\'t find a valid set with those locked tiles. Try unlocking some.'
+      : 'Generation failed — try again!');
     return;
   }
 
@@ -899,7 +1044,14 @@ async function generate() {
   renderWordCount();
   renderWords();
   renderTip();
+
+  if (mode === 'split') {
+    const score = splitScore(currentWords);
+    showToast(`Split score: ${score} — ${score >= 8 ? 'great split!' : score >= 5 ? 'decent split' : 'mild split'}`);
+  }
 }
+
+async function generate() { return runGenerate('normal'); }
 
 function swapTile(idx) {
   if (lockedTiles.has(idx)) { showToast('Tile is locked — right-click to unlock'); return; }
@@ -947,7 +1099,9 @@ function showToast(msg) {
 }
 
 // ─── EVENTS ──────────────────────────────────────────────────────────────────
-document.getElementById('generateBtn').addEventListener('click', generate);
+document.getElementById('generateBtn').addEventListener('click', () => runGenerate('normal'));
+document.getElementById('wildBtn').addEventListener('click',     () => runGenerate('wild'));
+document.getElementById('splitBtn').addEventListener('click',    () => runGenerate('split'));
 document.getElementById('copySetBtn').addEventListener('click', copySet);
 
 // Seed word live feedback
