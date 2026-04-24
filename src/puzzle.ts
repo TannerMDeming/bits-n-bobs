@@ -25,8 +25,8 @@ export async function getTodaysPuzzle(): Promise<Puzzle> {
     if (match) return match;
   }
 
-  // Load today's puzzle by date
-  const today = new Date().toISOString().slice(0, 10);
+  // Load today's puzzle by date — offset by 5h so day rolls at 10pm PDT (UTC-7)
+  const today = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const todaysPuzzle = puzzles.find(p => p.date === today);
   if (todaysPuzzle) return todaysPuzzle;
 

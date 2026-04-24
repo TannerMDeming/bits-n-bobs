@@ -355,10 +355,12 @@ export default function GameScreen({
         fontSize: 22,
         lineHeight: 1.35,
         color: '#111',
-        maxWidth: 190,
+        maxWidth: 280,
         alignSelf: 'center',
       }}>
-        {round.clue}
+        {round.clue.split('\n').map((line, i, arr) => (
+          <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+        ))}
       </div>
 
       {/* ── Skip arrows + Progress Pills — pinned above bottom ── */}
