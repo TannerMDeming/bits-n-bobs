@@ -285,29 +285,49 @@ body {
   border: 2.5px solid var(--fg);
   border-radius: 8px;
   background: var(--bg-card);
-  font-family: var(--font-game);
-  font-weight: 700;
-  font-size: 18px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s;
   position: relative;
   user-select: none;
 }
-.tile-btn:hover:not(.locked) { background: #F0EDE9; transform: scale(1.04); }
 .tile-btn.locked {
   border-color: var(--blue);
   background: #EEF4FF;
-  cursor: default;
 }
-.tile-btn.locked::after {
-  content: '🔒';
+.tile-text {
+  font-family: var(--font-game);
+  font-weight: 700;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  background: transparent;
+  text-align: center;
+  width: 100%;
+  cursor: text;
+  padding: 2px 4px;
+  border-radius: 4px;
+  min-width: 0;
+}
+.tile-text:focus {
+  background: rgba(0,0,0,0.05);
+}
+.tile-lock-btn {
   position: absolute;
-  top: 2px; right: 3px;
-  font-size: 7px;
+  top: 3px; right: 3px;
+  font-size: 9px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  touch-action: manipulation;
 }
+.tile-lock-btn:hover,
+.tile-btn.locked .tile-lock-btn { opacity: 1; }
 
 /* ── Word list ── */
 .word-list {
@@ -722,18 +742,19 @@ function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowe
       const t = pickRandom(p); usedTiles.add(t.tile); set.push(t);
     }
     const words = findWords(set);
-    const longWords = words.filter(w => w.tileCount >= 3).length;
-    const veryLong = words.filter(w => w.tileCount >= 4);
-    if (words.length >= 8 && longWords >= 3 && veryLong.length >= 2) {
+    const longWords = words.filter(w => w.tileCount >= 3);
+    const veryLong  = words.filter(w => w.tileCount >= 4);
+    // Gate: need enough words overall and at least 2 proper long words
+    if (words.length >= 8 && longWords.length >= 3 && veryLong.length >= 2) {
       const rootSet   = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
       const suffixSet = new Set(ALL_TILES.filter(t => t.cat === 'suffixes').map(t => t.tile));
-      // Root diversity: top-3 long words must each use a different root
-      const top3 = veryLong.slice(0, 3);
+      // Root diversity: check top-3 of ALL 3+-tile words (not just 4+)
+      const top3 = longWords.slice(0, 3);
       const rootUsage = {};
       top3.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => { rootUsage[t] = (rootUsage[t] || 0) + 1; }));
       const maxRootReuse = Math.max(0, ...Object.values(rootUsage));
-      // Suffix diversity: no suffix in more than 2 of the top-4 long words
-      const top4 = veryLong.slice(0, 4);
+      // Suffix diversity: check top-4 of ALL 3+-tile words (not just 4+)
+      const top4 = longWords.slice(0, 4);
       const suffixUsage = {};
       top4.forEach(w => w.decomp.filter(t => suffixSet.has(t)).forEach(t => { suffixUsage[t] = (suffixUsage[t] || 0) + 1; }));
       const maxSuffixReuse = Math.max(0, ...Object.values(suffixUsage));
@@ -1056,7 +1077,7 @@ async function runGenerate(mode = 'normal') {
   if (mode === 'split') {
     result = generateSplit(locked);
   } else {
-    const attempts = mode === 'wild' ? 60000 : 30000;
+    const attempts = mode === 'wild' ? 60000 : 40000;
     const maxSuffixReuse = mode === 'wild' ? 1 : 2;
     result = generateSet(locked, attempts, maxSuffixReuse);
   }
@@ -1129,13 +1150,47 @@ function renderTiles() {
     return;
   }
   currentTiles.forEach((t, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'tile-btn' + ((tileSetLocked || lockedTiles.has(i)) ? ' locked' : '');
-    btn.textContent = t.tile;
-    btn.title = tileSetLocked ? 'Set is locked' : 'Click to swap · Right-click to lock/unlock';
-    btn.addEventListener('click', () => swapTile(i));
-    btn.addEventListener('contextmenu', e => { e.preventDefault(); toggleLock(i); });
-    grid.appendChild(btn);
+    const isLocked = tileSetLocked || lockedTiles.has(i);
+
+    const cell = document.createElement('div');
+    cell.className = 'tile-btn' + (isLocked ? ' locked' : '');
+
+    // Editable tile text
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'tile-text';
+    input.value = t.tile;
+    input.disabled = tileSetLocked;
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'none');
+    input.setAttribute('spellcheck', 'false');
+    input.addEventListener('change', () => {
+      const val = input.value.trim().toLowerCase();
+      if (!val) { input.value = t.tile; return; }
+      currentTiles[i] = { tile: val, cat: t.cat };
+      currentWords = findWords(currentTiles);
+      renderWordCount();
+      renderWords();
+      renderTip();
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') input.blur();
+    });
+
+    // Lock icon button
+    const lockBtn = document.createElement('button');
+    lockBtn.className = 'tile-lock-btn';
+    lockBtn.textContent = isLocked ? '🔒' : '🔓';
+    lockBtn.title = isLocked ? 'Unlock tile' : 'Lock tile';
+    lockBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (!tileSetLocked) toggleLock(i);
+    });
+
+    cell.appendChild(input);
+    cell.appendChild(lockBtn);
+    grid.appendChild(cell);
   });
 }
 

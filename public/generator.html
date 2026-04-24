@@ -733,33 +733,30 @@ function generateSet(lockedTiles = [], minWords = 8, maxAttempts = 15000) {
     }
 
     const words = findWords(set);
-    const longWords = words.filter(w => w.tileCount >= 3).length;
+    const longWords    = words.filter(w => w.tileCount >= 3);
     const veryLongList = words.filter(w => w.tileCount >= 4);
-    if (words.length >= minWords && longWords >= 3 && veryLongList.length >= 2) {
+    if (words.length >= minWords && longWords.length >= 3 && veryLongList.length >= 2) {
 
       const rootSet   = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
       const suffixSet = new Set(ALL_TILES.filter(t => t.cat === 'suffixes').map(t => t.tile));
 
-      // ── Root diversity: top-3 long words must each use a different root ──
-      const top3 = veryLongList.slice(0, 3);
+      // ── Root diversity: top-3 of ALL 3+-tile words (not just 4+) ──
+      const top3 = longWords.slice(0, 3);
       const rootUsage = {};
       top3.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => {
         rootUsage[t] = (rootUsage[t] || 0) + 1;
       }));
       const maxRootReuse = Math.max(0, ...Object.values(rootUsage));
 
-      // ── Suffix diversity: no suffix tile in more than 2 of the top-4 words ──
-      const top4 = veryLongList.slice(0, 4);
+      // ── Suffix diversity: top-4 of ALL 3+-tile words (not just 4+) ──
+      const top4 = longWords.slice(0, 4);
       const suffixUsage = {};
       top4.forEach(w => w.decomp.filter(t => suffixSet.has(t)).forEach(t => {
         suffixUsage[t] = (suffixUsage[t] || 0) + 1;
       }));
       const maxSuffixReuse = Math.max(0, ...Object.values(suffixUsage));
 
-      const diverse = maxRootReuse <= 1 && maxSuffixReuse <= 2;
-      if (diverse) return { tiles: set, words };
-
-      // After 12000 attempts relax suffix cap; after 14000 accept anything valid
+      if (maxRootReuse <= 1 && maxSuffixReuse <= 2) return { tiles: set, words };
       // Partial escape: relax suffix check but NEVER root diversity
       if (attempt >= maxAttempts * 0.80 && maxRootReuse <= 1) return { tiles: set, words };
     }
@@ -1020,7 +1017,7 @@ async function runGenerate(mode = 'normal') {
   if (mode === 'split') {
     result = generateSplit(locked);
   } else {
-    const attempts = mode === 'wild' ? 60000 : 30000;
+    const attempts = mode === 'wild' ? 60000 : 40000;
     result = generateSet(locked, 8, attempts);
   }
 
