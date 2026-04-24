@@ -274,22 +274,13 @@
     ],
     "rounds": [
       {
-        "answer": "blue",
-        "tiles": [
-          "bl",
-          "u",
-          "e"
-        ],
-        "clue": "from the past"
-      },
-      {
         "answer": "blast",
         "tiles": [
           "bl",
           "a",
           "st"
         ],
-        "clue": "telephone, computer, speaker"
+        "clue": "from the past"
       },
       {
         "answer": "portable",
@@ -299,7 +290,7 @@
           "bl",
           "e"
         ],
-        "clue": "what big tech can't build"
+        "clue": "telephone, computer, speaker"
       },
       {
         "answer": "trust",
@@ -307,6 +298,15 @@
           "tr",
           "u",
           "st"
+        ],
+        "clue": "what big tech can't build"
+      },
+      {
+        "answer": "blue",
+        "tiles": [
+          "bl",
+          "u",
+          "e"
         ],
         "clue": "common quality of ocean and sky"
       },
