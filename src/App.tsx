@@ -4,15 +4,23 @@ import { getTodaysPuzzle, ROUND_COLORS, ROUND_COLOR_FINAL, WRONG_COLOR } from '.
 import StartScreen from './components/StartScreen';
 import GameScreen from './components/GameScreen';
 import ResultsScreen from './components/ResultsScreen';
+import ArchiveScreen, { markArchiveCompleted } from './components/ArchiveScreen';
 
 export default function App() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [phase, setPhase] = useState<GamePhase>('start');
   const [roundIndex, setRoundIndex] = useState(0);
+  const [fromArchive, setFromArchive] = useState(false);
 
-  // Load puzzle on mount
+  // Keep a ref to today's puzzle so we can restore it after archive play
+  const todaysPuzzleRef = useRef<Puzzle | null>(null);
+
+  // Load today's puzzle on mount
   useEffect(() => {
-    getTodaysPuzzle().then(setPuzzle);
+    getTodaysPuzzle().then(p => {
+      todaysPuzzleRef.current = p;
+      setPuzzle(p);
+    });
   }, []);
 
   const currentRound = puzzle?.rounds[roundIndex];
@@ -104,6 +112,19 @@ export default function App() {
 
   // ─── ACTIONS ─────────────────────────────────────────────────────────────
   const handlePlay = useCallback(() => {
+    setFromArchive(false);
+    setPhase('playing');
+    roundStartRef.current = Date.now();
+  }, []);
+
+  // Start playing a specific puzzle from the archive
+  const handlePlayArchive = useCallback((archivePuzzle: Puzzle) => {
+    setPuzzle(archivePuzzle);
+    setFromArchive(true);
+    setRoundIndex(0);
+    setCompletedRounds(new Set());
+    setSkippedRounds(new Set());
+    setElapsed(0);
     setPhase('playing');
     roundStartRef.current = Date.now();
   }, []);
@@ -146,6 +167,7 @@ export default function App() {
 
     // All rounds done → results
     if (newCompleted.size >= puzzle.rounds.length) {
+      if (fromArchive) markArchiveCompleted(puzzle.id);
       setPhase('results');
       return;
     }
@@ -154,7 +176,7 @@ export default function App() {
     const next = findNext(roundIndex, newCompleted, puzzle.rounds.length);
     if (next !== -1) setRoundIndex(next);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundIndex, puzzle, completedRounds, roundAccumTimes]);
+  }, [roundIndex, puzzle, completedRounds, roundAccumTimes, fromArchive]);
 
   const handleSkipForward = useCallback(() => {
     if (!puzzle) return;
@@ -211,10 +233,39 @@ export default function App() {
   if (phase === 'start') {
     return (
       <div className="app-shell">
-        <StartScreen onPlay={handlePlay} puzzle={puzzle} />
+        <StartScreen
+          onPlay={handlePlay}
+          onArchive={() => setPhase('archive')}
+          puzzle={puzzle}
+        />
       </div>
     );
   }
+
+  if (phase === 'archive') {
+    return (
+      <div className="app-shell">
+        <ArchiveScreen
+          onPlay={handlePlayArchive}
+          onBack={() => setPhase('start')}
+        />
+      </div>
+    );
+  }
+
+  // Helper to reset game state and return to a given phase
+  const resetGame = (nextPhase: GamePhase) => {
+    const p = todaysPuzzleRef.current ?? puzzle;
+    setPuzzle(p);
+    setFromArchive(false);
+    setRoundIndex(0);
+    setRoundTimes([]);
+    setElapsed(0);
+    setCompletedRounds(new Set());
+    setSkippedRounds(new Set());
+    setRoundAccumTimes(Array(p.rounds.length).fill(0));
+    setPhase(nextPhase);
+  };
 
   if (phase === 'results') {
     return (
@@ -224,15 +275,9 @@ export default function App() {
           roundTimes={roundTimes}
           roundColors={ROUND_COLOR_FINAL}
           puzzleId={puzzle.id}
-          onRestart={() => {
-            setPhase('start');
-            setRoundIndex(0);
-            setRoundTimes([]);
-            setElapsed(0);
-            setCompletedRounds(new Set());
-            setSkippedRounds(new Set());
-            setRoundAccumTimes(Array(puzzle.rounds.length).fill(0));
-          }}
+          fromArchive={fromArchive}
+          onBackToArchive={() => resetGame('archive')}
+          onRestart={() => resetGame('start')}
         />
       </div>
     );

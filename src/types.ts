@@ -16,6 +16,7 @@ export type TraySlot = string | null;
 
 export type GamePhase =
   | 'start'       // splash screen
+  | 'archive'     // archive browser
   | 'playing'     // active gameplay
   | 'roundWin'    // brief celebration before next round
   | 'results';    // final results screen

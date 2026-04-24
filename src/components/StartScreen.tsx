@@ -6,10 +6,11 @@ import HowToPlayModal from './HowToPlayModal';
 
 interface Props {
   onPlay: () => void;
+  onArchive: () => void;
   puzzle: Puzzle;
 }
 
-export default function StartScreen({ onPlay, puzzle }: Props) {
+export default function StartScreen({ onPlay, onArchive, puzzle }: Props) {
   const puzzleNum = String(puzzle.id).padStart(3, '0');
   const puzzleDate = formatPuzzleDate(puzzle.date);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
@@ -80,25 +81,44 @@ export default function StartScreen({ onPlay, puzzle }: Props) {
           Play
         </button>
 
-        <button
-          onClick={() => setShowHowToPlay(true)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-ui)',
-            fontWeight: 700,
-            fontSize: 16,
-            color: '#3D3D3D',
-            textDecoration: 'underline',
-            textDecorationColor: '#888',
-            textUnderlineOffset: 3,
-            padding: '4px 8px',
-            marginBottom: 20,
-          }}
-        >
-          How to Play
-        </button>
+        <div style={{ display: 'flex', gap: 24, marginBottom: 20 }}>
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              fontSize: 16,
+              color: '#3D3D3D',
+              textDecoration: 'underline',
+              textDecorationColor: '#888',
+              textUnderlineOffset: 3,
+              padding: '4px 8px',
+            }}
+          >
+            How to Play
+          </button>
+          <button
+            onClick={onArchive}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              fontSize: 16,
+              color: '#3D3D3D',
+              textDecoration: 'underline',
+              textDecorationColor: '#888',
+              textUnderlineOffset: 3,
+              padding: '4px 8px',
+            }}
+          >
+            Archive
+          </button>
+        </div>
 
         <p style={{
           fontFamily: 'var(--font-game)',

@@ -7,6 +7,8 @@ interface Props {
   roundColors: string[];
   puzzleId: number;
   onRestart: () => void;
+  fromArchive?: boolean;
+  onBackToArchive?: () => void;
 }
 
 function formatTime(secs: number) {
@@ -36,7 +38,7 @@ function getStreak(): number {
   return streak;
 }
 
-export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleId, onRestart }: Props) {
+export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleId, onRestart, fromArchive, onBackToArchive }: Props) {
   const [visible, setVisible] = useState(false);
   const totalSecs = roundTimes.reduce((a, b) => a + b, 0);
   const streak = getStreak();
@@ -198,16 +200,16 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
         })}
       </div>
 
-      {/* ── Share button — 177px centered ── */}
+      {/* ── Share / Back to Archive button ── */}
       <button
-        onClick={handleShare}
+        onClick={fromArchive ? onBackToArchive : handleShare}
         style={{
           background: '#111',
           color: '#FFFDFC',
           border: 'none',
           borderRadius: 100,
           height: 50,
-          width: 177,
+          width: fromArchive ? 210 : 177,
           fontSize: 16,
           fontFamily: 'var(--font-ui)',
           fontWeight: 800,
@@ -217,7 +219,7 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
           flexShrink: 0,
         }}
       >
-        Share Results
+        {fromArchive ? 'Back to Archive' : 'Share Results'}
       </button>
 
       {/* ── Streak — Serifa 700, 19px ── */}
