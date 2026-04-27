@@ -393,7 +393,7 @@
     "tileset": [
       "i",
       "ize",
-      "sign",
+      "or",
       "cr",
       "al",
       "cap",
@@ -413,7 +413,7 @@
           "i",
           "al"
         ],
-        "clue": "Temp"
+        "clue": "your first and last, simplified"
       },
       {
         "answer": "capitalize",
@@ -423,7 +423,7 @@
           "al",
           "ize"
         ],
-        "clue": "Temp"
+        "clue": "the first in a sentence, grammatically"
       },
       {
         "answer": "trial",
@@ -432,7 +432,7 @@
           "i",
           "al"
         ],
-        "clue": "Temp"
+        "clue": "7-30 days, often free?"
       },
       {
         "answer": "train",
@@ -441,16 +441,17 @@
           "a",
           "in"
         ],
-        "clue": "Temp"
+        "clue": "not a car, but a vehicle with cars"
       },
       {
-        "answer": "trait",
+        "answer": "traitor",
         "tiles": [
           "tr",
           "a",
-          "it"
+          "it",
+          "or"
         ],
-        "clue": "Temp"
+        "clue": "e tu, puzzler?"
       }
     ]
   }
