@@ -735,8 +735,9 @@ function decomposeFromVocab(word) {
   return best ? best.map(i => ALL_TILES[i]) : null;
 }
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowed = 2) {
+async function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowed = 2) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (attempt % 500 === 0) await new Promise(r => setTimeout(r, 0));
     const set = [...lockedTiles];
     const usedTiles = new Set(set.map(t => t.tile));
     const pool = cat => ALL_TILES.filter(t => t.cat === cat && !usedTiles.has(t.tile));
@@ -1007,10 +1008,11 @@ function splitScore(words) {
   return unique;
 }
 
-function generateSplit(lockedTiles = [], maxAttempts = 50000) {
+async function generateSplit(lockedTiles = [], maxAttempts = 50000) {
   let bestResult = null;
   let bestScore = -1;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (attempt % 500 === 0) await new Promise(r => setTimeout(r, 0));
     const set = [...lockedTiles];
     const usedTiles = new Set(set.map(t => t.tile));
     const pool = (cat) => ALL_TILES.filter(t => t.cat === cat && !usedTiles.has(t.tile));
@@ -1085,12 +1087,20 @@ async function runGenerate(mode = 'normal') {
   const locked = [...seedTiles, ...extraLocked];
 
   let result;
-  if (mode === 'split') {
-    result = generateSplit(locked);
-  } else {
-    const attempts = mode === 'wild' ? 60000 : 40000;
-    const maxSuffixReuse = mode === 'wild' ? 1 : 2;
-    result = generateSet(locked, attempts, maxSuffixReuse);
+  try {
+    if (mode === 'split') {
+      result = await generateSplit(locked);
+    } else {
+      const attempts = mode === 'wild' ? 60000 : 40000;
+      const maxSuffixReuse = mode === 'wild' ? 1 : 2;
+      result = await generateSet(locked, attempts, maxSuffixReuse);
+    }
+  } catch (err) {
+    allBtns.forEach(b => b.disabled = false);
+    genEl.classList.remove('visible');
+    showToast('Generation error — try again');
+    console.error('generateSet error:', err);
+    return;
   }
 
   allBtns.forEach(b => b.disabled = false);
