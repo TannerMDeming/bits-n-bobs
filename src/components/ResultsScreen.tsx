@@ -62,9 +62,9 @@ export default function ResultsScreen({ rounds, roundTimes, roundColors, puzzleI
   }, []);
 
   function handleShare() {
-    // 1 square per 5s, min 1, max 5 — absolute scale, not relative
+    // 1 square per 15s, min 1, max 5 — ~2min total reads as 2 squares/round (good pace)
     const lines = rounds.map((_, i) => {
-      const count = Math.min(5, Math.max(1, Math.ceil(roundTimes[i] / 5)));
+      const count = Math.min(5, Math.max(1, Math.ceil(roundTimes[i] / 15)));
       return Array(count).fill(SHARE_SQUARES[i]).join('');
     });
     const id = String(puzzleId).padStart(3, '0');
