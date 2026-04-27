@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import logoUrl from '../assets/logo.png';
 import type { Puzzle } from '../types';
 import { formatPuzzleDate } from '../puzzle';
@@ -15,14 +15,14 @@ export default function StartScreen({ onPlay, onArchive, puzzle }: Props) {
   const puzzleDate = formatPuzzleDate(puzzle.date);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
 
-  // First-time: show How to Play after Play is tapped, then start game on close
-  const handlePlayClick = () => {
+  // Auto-show on first ever visit
+  useEffect(() => {
     if (!localStorage.getItem('bnb_seenHowToPlay')) {
       setShowHowToPlay(true);
-    } else {
-      onPlay();
     }
-  };
+  }, []);
+
+  const handlePlayClick = () => onPlay();
 
   const handleCloseHowToPlay = () => {
     setShowHowToPlay(false);
