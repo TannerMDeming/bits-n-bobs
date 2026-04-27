@@ -386,5 +386,69 @@
         "clue": "how you do this, right now."
       }
     ]
+  },
+  {
+    "id": 7,
+    "date": "2026-04-28",
+    "tileset": [
+      "a",
+      "ship",
+      "ped",
+      "st",
+      "fore",
+      "ork",
+      "bl",
+      "en",
+      "em",
+      "ward",
+      "ir",
+      "e"
+    ],
+    "rounds": [
+      {
+        "answer": "enable",
+        "tiles": [
+          "en",
+          "a",
+          "bl",
+          "e"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "blast",
+        "tiles": [
+          "bl",
+          "a",
+          "st"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "forest",
+        "tiles": [
+          "fore",
+          "st"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "east",
+        "tiles": [
+          "e",
+          "a",
+          "st"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "stir",
+        "tiles": [
+          "st",
+          "ir"
+        ],
+        "clue": "Temp"
+      }
+    ]
   }
 ]
