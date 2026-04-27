@@ -27,6 +27,12 @@ export default function StartScreen({ onPlay, onArchive, puzzle }: Props) {
   const handleCloseHowToPlay = () => {
     setShowHowToPlay(false);
     localStorage.setItem('bnb_seenHowToPlay', '1');
+    // Don't start game — user must click Play explicitly
+  };
+
+  const handlePlayFromModal = () => {
+    setShowHowToPlay(false);
+    localStorage.setItem('bnb_seenHowToPlay', '1');
     onPlay();
   };
 
@@ -131,7 +137,7 @@ export default function StartScreen({ onPlay, onArchive, puzzle }: Props) {
         </p>
       </div>
 
-      {showHowToPlay && <HowToPlayModal onClose={handleCloseHowToPlay} />}
+      {showHowToPlay && <HowToPlayModal onClose={handleCloseHowToPlay} onPlay={handlePlayFromModal} />}
     </>
   );
 }

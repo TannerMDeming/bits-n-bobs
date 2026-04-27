@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import handUrl from '../assets/hand.png';
 
-interface Props { onClose: () => void; }
+interface Props { onClose: () => void; onPlay?: () => void; }
 
 // ── Layout ────────────────────────────────────────────────────────────────────
 const T  = 56;
@@ -83,12 +83,14 @@ const FRAMES: Frame[] = [
 const POOL_LABELS = ['log', 'co', 'cal', 'i'];
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function HowToPlayModal({ onClose }: Props) {
-  const [closing,  setClosing]  = useState(false);
-  const [fi,       setFi]       = useState(0);
-  const [shakeKey, setShakeKey] = useState(0);
+export default function HowToPlayModal({ onClose, onPlay }: Props) {
+  const [closing,    setClosing]    = useState(false);
+  const [playOnClose, setPlayOnClose] = useState(false);
+  const [fi,         setFi]         = useState(0);
+  const [shakeKey,   setShakeKey]   = useState(0);
 
   const handleClose = () => setClosing(true);
+  const handlePlay  = () => { setPlayOnClose(true); setClosing(true); };
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
@@ -125,7 +127,7 @@ export default function HowToPlayModal({ onClose }: Props) {
 
       {/* Sheet */}
       <div
-        onAnimationEnd={() => { if (closing) onClose(); }}
+        onAnimationEnd={() => { if (closing) { playOnClose && onPlay ? onPlay() : onClose(); } }}
         style={{
           position: 'relative',
           background: '#FAF8F6',
@@ -305,7 +307,7 @@ export default function HowToPlayModal({ onClose }: Props) {
           {/* Button */}
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 22 }}>
             <button
-              onClick={handleClose}
+              onClick={handlePlay}
               style={{
                 height: 48, padding: '0 44px',
                 background: '#111', color: '#FAF8F6',
