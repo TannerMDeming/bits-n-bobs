@@ -391,61 +391,64 @@
     "id": 7,
     "date": "2026-04-28",
     "tileset": [
-      "a",
-      "ship",
-      "ped",
-      "st",
-      "fore",
-      "ork",
-      "bl",
-      "en",
-      "em",
-      "ward",
-      "ir",
-      "e"
+      "i",
+      "ize",
+      "sign",
+      "cr",
+      "al",
+      "cap",
+      "y",
+      "in",
+      "it",
+      "all",
+      "tr",
+      "a"
     ],
     "rounds": [
       {
-        "answer": "enable",
+        "answer": "initial",
         "tiles": [
-          "en",
+          "in",
+          "it",
+          "i",
+          "al"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "capitalize",
+        "tiles": [
+          "cap",
+          "it",
+          "al",
+          "ize"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "trial",
+        "tiles": [
+          "tr",
+          "i",
+          "al"
+        ],
+        "clue": "Temp"
+      },
+      {
+        "answer": "train",
+        "tiles": [
+          "tr",
           "a",
-          "bl",
-          "e"
+          "in"
         ],
         "clue": "Temp"
       },
       {
-        "answer": "blast",
+        "answer": "trait",
         "tiles": [
-          "bl",
+          "tr",
           "a",
-          "st"
-        ],
-        "clue": "Temp"
-      },
-      {
-        "answer": "forest",
-        "tiles": [
-          "fore",
-          "st"
-        ],
-        "clue": "Temp"
-      },
-      {
-        "answer": "east",
-        "tiles": [
-          "e",
-          "a",
-          "st"
-        ],
-        "clue": "Temp"
-      },
-      {
-        "answer": "stir",
-        "tiles": [
-          "st",
-          "ir"
+          "it"
         ],
         "clue": "Temp"
       }
