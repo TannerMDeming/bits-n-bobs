@@ -989,7 +989,7 @@ function updateLockToggle() {
 
 function splitScore(words) {
   const long = words.filter(w => w.tileCount >= 3);
-  if (long.length < 4) return 0;
+  if (long.length < 3) return 0;
   const rootSet = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
   const rootFreq = {};
   long.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => {
@@ -999,7 +999,7 @@ function splitScore(words) {
   if (topRoots.length < 2) return 0;
   const famA = long.filter(w => w.decomp.includes(topRoots[0]));
   const famB = long.filter(w => w.decomp.includes(topRoots[1]));
-  if (famA.length < 2 || famB.length < 2) return 0;
+  if (famA.length < 1 || famB.length < 1) return 0;
   const tilesA = new Set(famA.flatMap(w => w.decomp));
   const tilesB = new Set(famB.flatMap(w => w.decomp));
   let unique = 0;
@@ -1011,6 +1011,9 @@ function splitScore(words) {
 async function generateSplit(lockedTiles = [], maxAttempts = 50000) {
   let bestResult = null;
   let bestScore = -1;
+  const allRoots = ALL_TILES.filter(t => t.cat === 'roots');
+  const lockedTileKeys = new Set(lockedTiles.map(t => t.tile));
+
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (attempt % 500 === 0) await new Promise(r => setTimeout(r, 0));
     const set = [...lockedTiles];
@@ -1024,16 +1027,25 @@ async function generateSplit(lockedTiles = [], maxAttempts = 50000) {
       set.push(t);
       return t;
     }
-    const cats = set.map(t => t.cat);
-    if (!cats.includes('vowels'))   pick('vowels');
-    if (!cats.includes('suffixes')) pick('suffixes');
-    if (set.filter(t => t.cat === 'roots').length < 1) pick('roots');
-    if (set.filter(t => t.cat === 'roots').length < 2) pick('roots');
-    if (!cats.includes('prefixes') && !cats.includes('onsets')) {
+
+    // Always seed exactly 2 distinct roots not already locked
+    const availRoots = allRoots.filter(t => !usedTiles.has(t.tile));
+    if (availRoots.length < 2) continue;
+    const rootA = pickRandom(availRoots);
+    usedTiles.add(rootA.tile); set.push(rootA);
+    const rootB = pickRandom(allRoots.filter(t => !usedTiles.has(t.tile)));
+    if (!rootB) continue;
+    usedTiles.add(rootB.tile); set.push(rootB);
+
+    // Ensure a vowel and suffix are present
+    if (!set.some(t => t.cat === 'vowels'))   pick('vowels');
+    if (!set.some(t => t.cat === 'suffixes')) pick('suffixes');
+    // Add a prefix or onset
+    if (!set.some(t => t.cat === 'prefixes' || t.cat === 'onsets'))
       Math.random() < 0.5 ? pick('prefixes') : pick('onsets');
-    }
+
     const weighted = [
-      ...Array(6).fill('roots'),
+      ...Array(5).fill('roots'),
       ...Array(3).fill('prefixes'),
       ...Array(3).fill('suffixes'),
       ...Array(2).fill('bodies'),
@@ -1053,7 +1065,7 @@ async function generateSplit(lockedTiles = [], maxAttempts = 50000) {
     if (score > bestScore) {
       bestScore = score;
       bestResult = { tiles: set, words };
-      if (score >= 8 && attempt >= 1000) break;
+      if (score >= 6 && attempt >= 500) break;
     }
   }
   return bestResult;
@@ -1114,7 +1126,7 @@ async function runGenerate(mode = 'normal') {
 
   if (mode === 'split') {
     const score = splitScore(currentWords);
-    showToast(`Split score: ${score} — ${score >= 8 ? 'great split!' : score >= 5 ? 'decent split' : 'mild split'}`);
+    showToast(`Split score: ${score} — ${score >= 7 ? 'great split!' : score >= 4 ? 'decent split' : 'mild split'}`);
   }
 }
 
