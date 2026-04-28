@@ -735,7 +735,7 @@ function decomposeFromVocab(word) {
   return best ? best.map(i => ALL_TILES[i]) : null;
 }
 function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-async function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowed = 2) {
+async function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuseAllowed = 2, minWords = 8) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (attempt % 500 === 0) await new Promise(r => setTimeout(r, 0));
     const set = [...lockedTiles];
@@ -760,22 +760,21 @@ async function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuse
     const words = findWords(set);
     const longWords = words.filter(w => w.tileCount >= 3);
     const veryLong  = words.filter(w => w.tileCount >= 4);
-    // Gate: need enough words overall and at least 2 proper long words
-    if (words.length >= 8 && longWords.length >= 3 && veryLong.length >= 2) {
+    if (words.length >= minWords && longWords.length >= 3 && veryLong.length >= 2) {
       const rootSet   = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
       const suffixSet = new Set(ALL_TILES.filter(t => t.cat === 'suffixes').map(t => t.tile));
-      // Root diversity: check top-3 of ALL 3+-tile words (not just 4+)
+      // Root diversity: no root shared across top-3 long words
       const top3 = longWords.slice(0, 3);
       const rootUsage = {};
       top3.forEach(w => w.decomp.filter(t => rootSet.has(t)).forEach(t => { rootUsage[t] = (rootUsage[t] || 0) + 1; }));
       const maxRootReuse = Math.max(0, ...Object.values(rootUsage));
-      // Suffix diversity: check top-4 of ALL 3+-tile words (not just 4+)
+      // Suffix diversity: check top-4 long words
       const top4 = longWords.slice(0, 4);
       const suffixUsage = {};
       top4.forEach(w => w.decomp.filter(t => suffixSet.has(t)).forEach(t => { suffixUsage[t] = (suffixUsage[t] || 0) + 1; }));
       const maxSuffixReuse = Math.max(0, ...Object.values(suffixUsage));
       if (maxRootReuse <= 1 && maxSuffixReuse <= maxSuffixReuseAllowed) return { tiles: set, words };
-      // Partial escape: relax suffix check but NEVER root diversity
+      // Partial escape: relax suffix but NEVER root diversity
       if (attempt >= maxAttempts * 0.80 && maxRootReuse <= 1) return { tiles: set, words };
     }
   }
@@ -1104,8 +1103,8 @@ async function runGenerate(mode = 'normal') {
       result = await generateSplit(locked);
     } else {
       const attempts = mode === 'wild' ? 60000 : 40000;
-      const maxSuffixReuse = mode === 'wild' ? 1 : 2;
-      result = await generateSet(locked, attempts, maxSuffixReuse);
+      const minWords  = mode === 'wild' ? 10 : 8;
+      result = await generateSet(locked, attempts, 2, minWords);
     }
   } catch (err) {
     allBtns.forEach(b => b.disabled = false);
