@@ -454,5 +454,66 @@
         "clue": "e tu, puzzler?"
       }
     ]
+  },
+  {
+    "id": 8,
+    "date": "2026-04-29",
+    "tileset": [
+      "e",
+      "able",
+      "port",
+      "loc",
+      "th",
+      "in",
+      "lor",
+      "mor",
+      "spir",
+      "cred",
+      "ward",
+      "pot"
+    ],
+    "rounds": [
+      {
+        "answer": "thin",
+        "tiles": [
+          "th",
+          "in"
+        ],
+        "clue": "grocery store margins"
+      },
+      {
+        "answer": "lore",
+        "tiles": [
+          "lor",
+          "e"
+        ],
+        "clue": "fantasy nerds crave it"
+      },
+      {
+        "answer": "more",
+        "tiles": [
+          "mor",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "inward",
+        "tiles": [
+          "in",
+          "ward"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "inspire",
+        "tiles": [
+          "in",
+          "spir",
+          "e"
+        ],
+        "clue": "temp"
+      }
+    ]
   }
 ]
