@@ -515,5 +515,69 @@
         "clue": "temp"
       }
     ]
+  },
+  {
+    "id": 9,
+    "date": "2026-04-30",
+    "tileset": [
+      "i",
+      "ce",
+      "sent",
+      "phon",
+      "con",
+      "man",
+      "just",
+      "form",
+      "in",
+      "ed",
+      "bio",
+      "act"
+    ],
+    "rounds": [
+      {
+        "answer": "injustice",
+        "tiles": [
+          "in",
+          "just",
+          "i",
+          "ce"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "acted",
+        "tiles": [
+          "act",
+          "ed"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "consent",
+        "tiles": [
+          "con",
+          "sent"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "conformed",
+        "tiles": [
+          "con",
+          "form",
+          "ed"
+        ],
+        "clue": "Deception, brought together"
+      },
+      {
+        "answer": "informed",
+        "tiles": [
+          "in",
+          "form",
+          "ed"
+        ],
+        "clue": "temp"
+      }
+    ]
   }
 ]
