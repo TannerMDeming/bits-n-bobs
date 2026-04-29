@@ -579,5 +579,68 @@
         "clue": "temp"
       }
     ]
+  },
+  {
+    "id": 10,
+    "date": "2026-04-30",
+    "tileset": [
+      "mot",
+      "bio",
+      "fin",
+      "pr",
+      "or",
+      "e",
+      "mob",
+      "o",
+      "auto",
+      "al",
+      "id",
+      "cred"
+    ],
+    "rounds": [
+      {
+        "answer": "pride",
+        "tiles": [
+          "pr",
+          "id",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "final",
+        "tiles": [
+          "fin",
+          "al"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "promote",
+        "tiles": [
+          "pr",
+          "o",
+          "mot",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "motor",
+        "tiles": [
+          "mot",
+          "or"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "oral",
+        "tiles": [
+          "or",
+          "al"
+        ],
+        "clue": "temp"
+      }
+    ]
   }
 ]
