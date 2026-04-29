@@ -642,5 +642,69 @@
         "clue": "temp"
       }
     ]
+  },
+  {
+    "id": 11,
+    "date": "2026-04-30",
+    "tileset": [
+      "ped",
+      "tech",
+      "e",
+      "or",
+      "st",
+      "ful",
+      "sc",
+      "grad",
+      "spir",
+      "u",
+      "im",
+      "ate"
+    ],
+    "rounds": [
+      {
+        "answer": "graduate",
+        "tiles": [
+          "grad",
+          "u",
+          "ate"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "impede",
+        "tiles": [
+          "im",
+          "ped",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "score",
+        "tiles": [
+          "sc",
+          "or",
+          "e"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "estate",
+        "tiles": [
+          "e",
+          "st",
+          "ate"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "grade",
+        "tiles": [
+          "grad",
+          "e"
+        ],
+        "clue": "temp"
+      }
+    ]
   }
 ]
