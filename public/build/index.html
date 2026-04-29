@@ -662,6 +662,23 @@ function decomposeWord(word, tiles) {
   bt(0, 0, []);
   return best;
 }
+// Returns only words whose tile-set isn't a strict subset of a longer word in the same result.
+// "minor" {min,or} ⊆ "minority" {min,or,it,y} → minor is a derivative, dropped.
+// Anagram pairs (same tile-set) also collapse to one.
+function nonDerivativeWords(words) {
+  const sorted = [...words].sort((a, b) => b.tileCount - a.tileCount);
+  const kept = [];
+  for (const w of sorted) {
+    const wSet = new Set(w.decomp);
+    const isDerivative = kept.some(k => {
+      const kSet = new Set(k.decomp);
+      return [...wSet].every(t => kSet.has(t));
+    });
+    if (!isDerivative) kept.push(w);
+  }
+  return kept;
+}
+
 function findWords(tileObjs) {
   const tiles = tileObjs.map(t => t.tile);
   const results = [];
@@ -773,10 +790,12 @@ async function generateSet(lockedTiles = [], maxAttempts = 15000, maxSuffixReuse
     const words = findWords(set);
     // Only count 2+-tile words — 1-tile words can't be used as puzzle answers
     const validWords = words.filter(w => w.tileCount >= 2);
-    const longWords  = validWords.filter(w => w.tileCount >= 3);
-    const veryLong   = validWords.filter(w => w.tileCount >= 4);
+    // Derivatives (minor/minority, prevent/prevention) count as one — gate on distinct families
+    const distinctWords = nonDerivativeWords(validWords);
+    const longWords  = distinctWords.filter(w => w.tileCount >= 3);
+    const veryLong   = distinctWords.filter(w => w.tileCount >= 4);
 
-    if (validWords.length >= minWords && longWords.length >= 2 && veryLong.length >= 1) {
+    if (distinctWords.length >= minWords && longWords.length >= 2 && veryLong.length >= 1) {
       const rootSet   = new Set(ALL_TILES.filter(t => t.cat === 'roots').map(t => t.tile));
       const suffixSet = new Set(ALL_TILES.filter(t => t.cat === 'suffixes').map(t => t.tile));
       // Root diversity: no root shared across top-3 long words
@@ -1090,7 +1109,8 @@ async function generateSplit(lockedTiles = [], maxAttempts = 50000) {
       set.push(t);
     }
     const words = findWords(set);
-    if (words.length < 8) continue;
+    const distinctWords = nonDerivativeWords(words.filter(w => w.tileCount >= 2));
+    if (distinctWords.length < 6) continue;
     const score = splitScore(words);
     if (score > bestScore) {
       bestScore = score;
@@ -1134,7 +1154,7 @@ async function runGenerate(mode = 'normal') {
       result = await generateSplit(locked);
     } else {
       const attempts = mode === 'wild' ? 60000 : 40000;
-      const minWords  = mode === 'wild' ? 7 : 5;
+      const minWords  = 6;
       result = await generateSet(locked, attempts, 2, minWords);
     }
   } catch (err) {
