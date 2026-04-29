@@ -150,6 +150,7 @@ body {
 .btn-danger { background: transparent; border: 1.5px solid #FF5137; color: #FF5137; }
 .btn-green { background: #14A566; color: #fff; }
 .btn-sm { padding: 7px 14px; font-size: 12px; }
+#freshBtn.active { background: #eef7ee; color: #1a7a46; border-color: #1a7a46; }
 
 /* ── Puzzle selector ── */
 .puzzle-selector {
@@ -554,6 +555,7 @@ body {
       <button class="btn btn-primary" id="generateBtn">Generate</button>
       <button class="btn btn-ghost btn-sm" id="wildBtn" title="Runs longer to find unusual combinations">🎲 Wild</button>
       <button class="btn btn-ghost btn-sm" id="splitBtn" title="Finds sets with two distinct word families">✂️ Split</button>
+      <button class="btn btn-ghost btn-sm" id="freshBtn" title="Avoid known repeater words (able, stale, steal, emit…)">✱ Fresh</button>
       <button class="btn btn-ghost btn-sm" id="copyTilesBtn">Copy tiles</button>
       <div class="lock-toggle" id="lockAllToggle">
         <span class="lock-icon">🔓</span>
@@ -979,6 +981,21 @@ document.getElementById('testBtn').addEventListener('click', () => {
 });
 
 // ─── TILE GENERATOR ───────────────────────────────────────────────────────────
+
+// Words that kept recurring across our 15-set analysis — toggle Fresh to dodge them
+const REPEATER_WORDS = new Set([
+  'able','stale','steal','emit','pose','east',
+  'event','prevent','erupt','omit','propose',
+  'mine','vocal','capable','more','phone','portable',
+]);
+let freshMode = false;
+
+document.getElementById('freshBtn').addEventListener('click', () => {
+  freshMode = !freshMode;
+  document.getElementById('freshBtn').classList.toggle('active', freshMode);
+  showToast(freshMode ? 'Fresh mode on — avoiding known repeaters' : 'Fresh mode off');
+});
+
 document.getElementById('generateBtn').addEventListener('click', () => runGenerate('normal'));
 document.getElementById('wildBtn').addEventListener('click',     () => runGenerate('wild'));
 document.getElementById('splitBtn').addEventListener('click',    () => runGenerate('split'));
@@ -1117,7 +1134,7 @@ async function runGenerate(mode = 'normal') {
       result = await generateSplit(locked);
     } else {
       const attempts = mode === 'wild' ? 60000 : 40000;
-      const minWords  = mode === 'wild' ? 10 : 8;
+      const minWords  = mode === 'wild' ? 7 : 5;
       result = await generateSet(locked, attempts, 2, minWords);
     }
   } catch (err) {
@@ -1131,6 +1148,31 @@ async function runGenerate(mode = 'normal') {
   allBtns.forEach(b => b.disabled = false);
   genEl.classList.remove('visible');
   if (!result) { showToast('No valid set found — try again'); return; }
+
+  // Fresh mode: retry up to 5× to avoid known repeater words
+  if (freshMode) {
+    const attempts = mode === 'wild' ? 60000 : 40000;
+    const minWords  = mode === 'wild' ? 7 : 5;
+    let best = result;
+    let bestOverlap = result.words.filter(w => REPEATER_WORDS.has(w.word)).length;
+    for (let r = 0; r < 5 && bestOverlap > 0; r++) {
+      genEl.classList.add('visible');
+      allBtns.forEach(b => b.disabled = true);
+      let candidate;
+      try {
+        candidate = mode === 'split'
+          ? await generateSplit(locked)
+          : await generateSet(locked, attempts, 2, minWords);
+      } catch {}
+      allBtns.forEach(b => b.disabled = false);
+      genEl.classList.remove('visible');
+      if (!candidate) continue;
+      const overlap = candidate.words.filter(w => REPEATER_WORDS.has(w.word)).length;
+      if (overlap < bestOverlap) { best = candidate; bestOverlap = overlap; }
+    }
+    result = best;
+    if (bestOverlap > 0) showToast(`Fresh: ${bestOverlap} known word${bestOverlap > 1 ? 's' : ''} still present`);
+  }
 
   currentTiles = result.tiles;
   currentWords = result.words;
