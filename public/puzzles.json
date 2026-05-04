@@ -1,5 +1,69 @@
 [
   {
+    "id": 0,
+    "date": "2026-04-29",
+    "tileset": [
+      "graph",
+      "man",
+      "grad",
+      "tr",
+      "th",
+      "u",
+      "re",
+      "vent",
+      "ad",
+      "nat",
+      "pel",
+      "dis"
+    ],
+    "rounds": [
+      {
+        "answer": "adventure",
+        "tiles": [
+          "ad",
+          "vent",
+          "u",
+          "re"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "nature",
+        "tiles": [
+          "nat",
+          "u",
+          "re"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "repel",
+        "tiles": [
+          "re",
+          "pel"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "truth",
+        "tiles": [
+          "tr",
+          "u",
+          "th"
+        ],
+        "clue": "temp"
+      },
+      {
+        "answer": "advent",
+        "tiles": [
+          "ad",
+          "vent"
+        ],
+        "clue": "temp"
+      }
+    ]
+  },
+  {
     "id": 1,
     "date": "2026-05-01",
     "tileset": [
@@ -61,68 +125,6 @@
           "e"
         ],
         "clue": "A baker's crime?"
-      }
-    ]
-  },
-  {
-    "id": 12,
-    "date": "2026-05-03",
-    "tileset": [
-      "al",
-      "vent",
-      "ment",
-      "mo",
-      "tion",
-      "cal",
-      "est",
-      "de",
-      "lo",
-      "oc",
-      "e",
-      "ful"
-    ],
-    "rounds": [
-      {
-        "answer": "local",
-        "tiles": [
-          "lo",
-          "cal"
-        ],
-        "clue": "Farmer's market produce"
-      },
-      {
-        "answer": "deal",
-        "tiles": [
-          "de",
-          "al"
-        ],
-        "clue": "In poker, in real estate"
-      },
-      {
-        "answer": "emotional",
-        "tiles": [
-          "e",
-          "mo",
-          "tion",
-          "al"
-        ],
-        "clue": "A type of rollercoaster"
-      },
-      {
-        "answer": "event",
-        "tiles": [
-          "e",
-          "vent"
-        ],
-        "clue": "From cultural to corporate"
-      },
-      {
-        "answer": "mode",
-        "tiles": [
-          "mo",
-          "de"
-        ],
-        "clue": "Easy, regular, hard"
       }
     ]
   },
@@ -517,70 +519,6 @@
     ]
   },
   {
-    "id": 0,
-    "date": "2026-04-29",
-    "tileset": [
-      "graph",
-      "man",
-      "grad",
-      "tr",
-      "th",
-      "u",
-      "re",
-      "vent",
-      "ad",
-      "nat",
-      "pel",
-      "dis"
-    ],
-    "rounds": [
-      {
-        "answer": "adventure",
-        "tiles": [
-          "ad",
-          "vent",
-          "u",
-          "re"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "nature",
-        "tiles": [
-          "nat",
-          "u",
-          "re"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "repel",
-        "tiles": [
-          "re",
-          "pel"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "truth",
-        "tiles": [
-          "tr",
-          "u",
-          "th"
-        ],
-        "clue": "temp"
-      },
-      {
-        "answer": "advent",
-        "tiles": [
-          "ad",
-          "vent"
-        ],
-        "clue": "temp"
-      }
-    ]
-  },
-  {
     "id": 10,
     "date": "2026-04-30",
     "tileset": [
@@ -704,6 +642,130 @@
           "e"
         ],
         "clue": "a hill's slope"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "date": "2026-05-03",
+    "tileset": [
+      "al",
+      "vent",
+      "ment",
+      "mo",
+      "tion",
+      "cal",
+      "est",
+      "de",
+      "lo",
+      "oc",
+      "e",
+      "ful"
+    ],
+    "rounds": [
+      {
+        "answer": "local",
+        "tiles": [
+          "lo",
+          "cal"
+        ],
+        "clue": "Farmer's market produce"
+      },
+      {
+        "answer": "deal",
+        "tiles": [
+          "de",
+          "al"
+        ],
+        "clue": "In poker, in real estate"
+      },
+      {
+        "answer": "emotional",
+        "tiles": [
+          "e",
+          "mo",
+          "tion",
+          "al"
+        ],
+        "clue": "A type of rollercoaster"
+      },
+      {
+        "answer": "event",
+        "tiles": [
+          "e",
+          "vent"
+        ],
+        "clue": "From cultural to corporate"
+      },
+      {
+        "answer": "mode",
+        "tiles": [
+          "mo",
+          "de"
+        ],
+        "clue": "Easy, regular, hard"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "date": "2026-05-04",
+    "tileset": [
+      "phon",
+      "mot",
+      "sign",
+      "sub",
+      "er",
+      "u",
+      "re",
+      "ness",
+      "semi",
+      "rupt",
+      "e",
+      "th"
+    ],
+    "rounds": [
+      {
+        "answer": "remote",
+        "tiles": [
+          "re",
+          "mot",
+          "e"
+        ],
+        "clue": "lost among sofas"
+      },
+      {
+        "answer": "resign",
+        "tiles": [
+          "re",
+          "sign"
+        ],
+        "clue": "apply your John Hancock, again"
+      },
+      {
+        "answer": "erupt",
+        "tiles": [
+          "e",
+          "rupt"
+        ],
+        "clue": "volcanoes and angry men tend to:"
+      },
+      {
+        "answer": "phone",
+        "tiles": [
+          "phon",
+          "e"
+        ],
+        "clue": "device held while solving word puzzles"
+      },
+      {
+        "answer": "rupture",
+        "tiles": [
+          "rupt",
+          "u",
+          "re"
+        ],
+        "clue": "a burst, a breach, a fissure, oh my!"
       }
     ]
   }
