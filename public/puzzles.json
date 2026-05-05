@@ -793,7 +793,7 @@
           "sent",
           "ence"
         ],
-        "clue": "Can you use it in a ___?"
+        "clue": "can you use it in a ___?"
       },
       {
         "answer": "present",
@@ -802,7 +802,7 @@
           "e",
           "sent"
         ],
-        "clue": "Gift of attention"
+        "clue": "gift of attention"
       },
       {
         "answer": "probe",
@@ -811,7 +811,7 @@
           "o",
           "be"
         ],
-        "clue": "Alien experiment"
+        "clue": "alien experiment"
       },
       {
         "answer": "blend",
@@ -819,7 +819,7 @@
           "bl",
           "end"
         ],
-        "clue": "Not a single-origin"
+        "clue": "not a single-origin"
       },
       {
         "answer": "blue",
@@ -828,7 +828,7 @@
           "u",
           "e"
         ],
-        "clue": "Of sky and sadness"
+        "clue": "of sky and sadness"
       }
     ]
   }
