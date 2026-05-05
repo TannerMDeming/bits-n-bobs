@@ -768,5 +768,68 @@
         "clue": "a burst, a breach, a fissure, oh my!"
       }
     ]
+  },
+  {
+    "id": 14,
+    "date": "2026-05-06",
+    "tileset": [
+      "sent",
+      "flu",
+      "mot",
+      "be",
+      "sion",
+      "u",
+      "end",
+      "ence",
+      "e",
+      "o",
+      "bl",
+      "pr"
+    ],
+    "rounds": [
+      {
+        "answer": "sentence",
+        "tiles": [
+          "sent",
+          "ence"
+        ],
+        "clue": "Can you use it in a ___?"
+      },
+      {
+        "answer": "present",
+        "tiles": [
+          "pr",
+          "e",
+          "sent"
+        ],
+        "clue": "Gift of attention"
+      },
+      {
+        "answer": "probe",
+        "tiles": [
+          "pr",
+          "o",
+          "be"
+        ],
+        "clue": "Alien experiment"
+      },
+      {
+        "answer": "blend",
+        "tiles": [
+          "bl",
+          "end"
+        ],
+        "clue": "Not a single-origin"
+      },
+      {
+        "answer": "blue",
+        "tiles": [
+          "bl",
+          "u",
+          "e"
+        ],
+        "clue": "Of sky and sadness"
+      }
+    ]
   }
 ]
