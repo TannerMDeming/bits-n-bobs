@@ -831,5 +831,70 @@
         "clue": "of sky and sadness"
       }
     ]
+  },
+  {
+    "id": 25,
+    "date": "2026-05-06",
+    "tileset": [
+      "gen",
+      "vent",
+      "graph",
+      "bl",
+      "er",
+      "i",
+      "hyper",
+      "ail",
+      "a",
+      "e",
+      "tion",
+      "sol"
+    ],
+    "rounds": [
+      {
+        "answer": "isolation",
+        "tiles": [
+          "i",
+          "sol",
+          "a",
+          "tion"
+        ],
+        "clue": "experience of most castaways"
+      },
+      {
+        "answer": "able",
+        "tiles": [
+          "a",
+          "bl",
+          "e"
+        ],
+        "clue": "you can do it"
+      },
+      {
+        "answer": "generation",
+        "tiles": [
+          "gen",
+          "er",
+          "a",
+          "tion"
+        ],
+        "clue": "Greatest, X, Z"
+      },
+      {
+        "answer": "sole",
+        "tiles": [
+          "sol",
+          "e"
+        ],
+        "clue": "on a pair, and single"
+      },
+      {
+        "answer": "solvent",
+        "tiles": [
+          "sol",
+          "vent"
+        ],
+        "clue": "total assets exceeding total liabilities"
+      }
+    ]
   }
 ]
