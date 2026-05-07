@@ -896,5 +896,69 @@
         "clue": "total assets exceeding total liabilities"
       }
     ]
+  },
+  {
+    "id": 16,
+    "date": "2026-05-07",
+    "tileset": [
+      "mut",
+      "reg",
+      "mot",
+      "tr",
+      "it",
+      "e",
+      "tion",
+      "orn",
+      "a",
+      "ty",
+      "bl",
+      "ast"
+    ],
+    "rounds": [
+      {
+        "answer": "treaty",
+        "tiles": [
+          "tr",
+          "e",
+          "a",
+          "ty"
+        ],
+        "clue": "peace, trade, environmental"
+      },
+      {
+        "answer": "mutation",
+        "tiles": [
+          "mut",
+          "a",
+          "tion"
+        ],
+        "clue": "x--men have undergone:"
+      },
+      {
+        "answer": "trait",
+        "tiles": [
+          "tr",
+          "a",
+          "it"
+        ],
+        "clue": "aspect of personality"
+      },
+      {
+        "answer": "mute",
+        "tiles": [
+          "mut",
+          "e"
+        ],
+        "clue": "all the fury, none of the sound"
+      },
+      {
+        "answer": "blast",
+        "tiles": [
+          "bl",
+          "ast"
+        ],
+        "clue": "\"put on ___\""
+      }
+    ]
   }
 ]
