@@ -1023,5 +1023,68 @@
         "clue": "just do it"
       }
     ]
+  },
+  {
+    "id": 18,
+    "date": "2026-05-10",
+    "tileset": [
+      "voc",
+      "ject",
+      "rupt",
+      "sub",
+      "ion",
+      "i",
+      "in",
+      "nat",
+      "er",
+      "th",
+      "e",
+      "un"
+    ],
+    "rounds": [
+      {
+        "answer": "thin",
+        "tiles": [
+          "th",
+          "in"
+        ],
+        "clue": "ice under a transgressor"
+      },
+      {
+        "answer": "nation",
+        "tiles": [
+          "nat",
+          "ion"
+        ],
+        "clue": "a collection of taxpayers"
+      },
+      {
+        "answer": "innate",
+        "tiles": [
+          "in",
+          "nat",
+          "e"
+        ],
+        "clue": "nature, not nurture"
+      },
+      {
+        "answer": "subject",
+        "tiles": [
+          "sub",
+          "ject"
+        ],
+        "clue": "topic, noun, area of study"
+      },
+      {
+        "answer": "either",
+        "tiles": [
+          "e",
+          "i",
+          "th",
+          "er"
+        ],
+        "clue": "this or that"
+      }
+    ]
   }
 ]
