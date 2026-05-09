@@ -1086,5 +1086,67 @@
         "clue": "this or that"
       }
     ]
+  },
+  {
+    "id": 19,
+    "date": "2026-05-11",
+    "tileset": [
+      "vent",
+      "spir",
+      "flu",
+      "in",
+      "or",
+      "i",
+      "ed",
+      "ent",
+      "ing",
+      "im",
+      "gr",
+      "ight"
+    ],
+    "rounds": [
+      {
+        "answer": "oriented",
+        "tiles": [
+          "or",
+          "i",
+          "ent",
+          "ed"
+        ],
+        "clue": "family-, career-, detail-"
+      },
+      {
+        "answer": "fluent",
+        "tiles": [
+          "flu",
+          "ent"
+        ],
+        "clue": "where duolingo might get you"
+      },
+      {
+        "answer": "invent",
+        "tiles": [
+          "in",
+          "vent"
+        ],
+        "clue": "create, design, produce"
+      },
+      {
+        "answer": "grim",
+        "tiles": [
+          "gr",
+          "im"
+        ],
+        "clue": "when things aren't looking up"
+      },
+      {
+        "answer": "grin",
+        "tiles": [
+          "gr",
+          "in"
+        ],
+        "clue": "when things are looking up"
+      }
+    ]
   }
 ]
