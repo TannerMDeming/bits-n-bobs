@@ -960,5 +960,68 @@
         "clue": "\"put on ___\""
       }
     ]
+  },
+  {
+    "id": 17,
+    "date": "2026-05-09",
+    "tileset": [
+      "pel",
+      "duc",
+      "min",
+      "com",
+      "est",
+      "a",
+      "grad",
+      "pr",
+      "e",
+      "o",
+      "con",
+      "be"
+    ],
+    "rounds": [
+      {
+        "answer": "produce",
+        "tiles": [
+          "pr",
+          "o",
+          "duc",
+          "e"
+        ],
+        "clue": "farmers make it, beat masters do it"
+      },
+      {
+        "answer": "grade",
+        "tiles": [
+          "grad",
+          "e"
+        ],
+        "clue": "A, B, C, D"
+      },
+      {
+        "answer": "mine",
+        "tiles": [
+          "min",
+          "e"
+        ],
+        "clue": "yours, underground"
+      },
+      {
+        "answer": "beacon",
+        "tiles": [
+          "be",
+          "a",
+          "con"
+        ],
+        "clue": "a conspicuous device"
+      },
+      {
+        "answer": "compel",
+        "tiles": [
+          "com",
+          "pel"
+        ],
+        "clue": "just do it"
+      }
+    ]
   }
 ]
