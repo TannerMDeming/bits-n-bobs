@@ -1148,5 +1148,68 @@
         "clue": "when things are looking up"
       }
     ]
+  },
+  {
+    "id": 20,
+    "date": "2026-05-12",
+    "tileset": [
+      "hab",
+      "temp",
+      "e",
+      "er",
+      "con",
+      "gen",
+      "form",
+      "al",
+      "in",
+      "spir",
+      "ce",
+      "lor"
+    ],
+    "rounds": [
+      {
+        "answer": "conspire",
+        "tiles": [
+          "con",
+          "spir",
+          "e"
+        ],
+        "clue": "deviously planning"
+      },
+      {
+        "answer": "general",
+        "tiles": [
+          "gen",
+          "er",
+          "al"
+        ],
+        "clue": "common and universal"
+      },
+      {
+        "answer": "informal",
+        "tiles": [
+          "in",
+          "form",
+          "al"
+        ],
+        "clue": "leave your suit and tie at home"
+      },
+      {
+        "answer": "temper",
+        "tiles": [
+          "temp",
+          "er"
+        ],
+        "clue": "known to flare"
+      },
+      {
+        "answer": "conform",
+        "tiles": [
+          "con",
+          "form"
+        ],
+        "clue": "deception, brought together"
+      }
+    ]
   }
 ]
