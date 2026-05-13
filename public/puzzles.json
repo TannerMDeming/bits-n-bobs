@@ -1211,5 +1211,70 @@
         "clue": "deception, brought together"
       }
     ]
+  },
+  {
+    "id": 21,
+    "date": "2026-05-13",
+    "tileset": [
+      "vol",
+      "struct",
+      "act",
+      "re",
+      "al",
+      "u",
+      "id",
+      "gen",
+      "grad",
+      "tion",
+      "ery",
+      "bl"
+    ],
+    "rounds": [
+      {
+        "answer": "revolution",
+        "tiles": [
+          "re",
+          "vol",
+          "u",
+          "tion"
+        ],
+        "clue": "great societal change"
+      },
+      {
+        "answer": "structure",
+        "tiles": [
+          "struct",
+          "u",
+          "re"
+        ],
+        "clue": "a building, and a training plan"
+      },
+      {
+        "answer": "gradual",
+        "tiles": [
+          "grad",
+          "u",
+          "al"
+        ],
+        "clue": "slow creep"
+      },
+      {
+        "answer": "actual",
+        "tiles": [
+          "act",
+          "u",
+          "al"
+        ],
+        "clue": "not based in imagination"
+      },
+      {
+        "answer": "real",
+        "tiles": [
+          "re",
+          "al"
+        ],
+        "clue": "again, not based in imagination"
+      }
+    ]
   }
 ]
