@@ -74,6 +74,12 @@ export default function GameScreen({
   const TRAY_CONTAINER_HEIGHT = gridTileSize + 4;
   const roundColor = roundColors[roundIndex];
 
+  // ── Shuffle ──
+  const [displayTiles, setDisplayTiles] = useState(() => [...puzzle.tileset]);
+  function shuffleTiles() {
+    setDisplayTiles(t => [...t].sort(() => Math.random() - 0.5));
+  }
+
   // ── Info modal ──
   const [showInfo, setShowInfo] = useState(false);
 
@@ -234,9 +240,9 @@ export default function GameScreen({
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 8,
         flexShrink: 0,
-        marginBottom: 42,
+        marginBottom: 16,
       }}>
-        {puzzle.tileset.map((tile) => {
+        {displayTiles.map((tile) => {
           const isUsed = inTray.has(tile);
           return (
             <button
@@ -263,6 +269,28 @@ export default function GameScreen({
           );
         })}
       </div>
+
+      {/* ── Shuffle ── */}
+      <button
+        onClick={shuffleTiles}
+        style={{
+          background: 'transparent',
+          border: '1.5px solid #111',
+          borderRadius: 100,
+          padding: '11px 34px',
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 700,
+          fontSize: 16,
+          color: '#111',
+          cursor: 'pointer',
+          flexShrink: 0,
+          alignSelf: 'center',
+          marginBottom: 32,
+          letterSpacing: '0.01em',
+        }}
+      >
+        Shuffle
+      </button>
 
       {/* ── Answer Tray ── */}
       <div style={{
