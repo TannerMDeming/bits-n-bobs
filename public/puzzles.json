@@ -1276,5 +1276,68 @@
         "clue": "again, not based in imagination"
       }
     ]
+  },
+  {
+    "id": 22,
+    "date": "2026-05-15",
+    "tileset": [
+      "reg",
+      "form",
+      "cred",
+      "sh",
+      "al",
+      "i",
+      "sign",
+      "gl",
+      "u",
+      "ent",
+      "mut",
+      "voc"
+    ],
+    "rounds": [
+      {
+        "answer": "mutual",
+        "tiles": [
+          "mut",
+          "u",
+          "al"
+        ],
+        "clue": "destruction, respect"
+      },
+      {
+        "answer": "formal",
+        "tiles": [
+          "form",
+          "al"
+        ],
+        "clue": "by the book and buttoned up"
+      },
+      {
+        "answer": "credential",
+        "tiles": [
+          "cred",
+          "ent",
+          "i",
+          "al"
+        ],
+        "clue": "degree, license, certification"
+      },
+      {
+        "answer": "signal",
+        "tiles": [
+          "sign",
+          "al"
+        ],
+        "clue": "can you hear me now?"
+      },
+      {
+        "answer": "regal",
+        "tiles": [
+          "reg",
+          "al"
+        ],
+        "clue": "like Elizabeth, or a Great Dane"
+      }
+    ]
   }
 ]
