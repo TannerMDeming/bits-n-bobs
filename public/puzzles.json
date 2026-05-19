@@ -1339,5 +1339,68 @@
         "clue": "like Elizabeth, or a Great Dane"
       }
     ]
+  },
+  {
+    "id": 23,
+    "date": "2026-05-19",
+    "tileset": [
+      "tech",
+      "temp",
+      "struct",
+      "de",
+      "al",
+      "e",
+      "pend",
+      "vol",
+      "ound",
+      "u",
+      "tion",
+      "mut"
+    ],
+    "rounds": [
+      {
+        "answer": "evolution",
+        "tiles": [
+          "e",
+          "vol",
+          "u",
+          "tion"
+        ],
+        "clue": "getting better and better"
+      },
+      {
+        "answer": "destruct",
+        "tiles": [
+          "de",
+          "struct"
+        ],
+        "clue": "tear down, annihilate"
+      },
+      {
+        "answer": "depend",
+        "tiles": [
+          "de",
+          "pend"
+        ],
+        "clue": "conditionally rely upon"
+      },
+      {
+        "answer": "mute",
+        "tiles": [
+          "mut",
+          "e"
+        ],
+        "clue": "the quietest button on the remote"
+      },
+      {
+        "answer": "mutual",
+        "tiles": [
+          "mut",
+          "u",
+          "al"
+        ],
+        "clue": "sharing the same feeling"
+      }
+    ]
   }
 ]
